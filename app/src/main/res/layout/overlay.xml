@@ -1,11 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_blue_light"
+                android:minHeight="150dp"
+                android:minWidth="150dp">
+
 
     <TextView
-        android:id="@+id/textview_info"
+        android:id="@+id/close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8sp"
+        android:layout_alignParentRight="true"
+        android:text="close"/>
+
+    <TextView
+        android:id="@+id/word"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:padding="8sp"
+        android:textSize="14sp"
+        android:textColor="@android:color/white"
+        android:layout_toLeftOf="@id/close"
+        android:text="I am overlay dnf gdgdgmdgdmfgfdgdf"/>
+
+
+    <TextView
+        android:id="@+id/meaning"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_below="@id/word"
+        android:padding="8sp"
+        android:textSize="12sp"
+        android:textColor="@android:color/white"
+        android:text="Bhool is an 2014 Pakistani soap series that aired on Hum TV. It is directed by Asad Malik while written by veteran writer and poet Syed Wasi Shah. Series was produced by Momina Duraid at Gemstone Productions. It stars Sanam Chaudhry, Behroze Sabzwari, Fazila Qazi, Shehroz Sabzwari, Saleem Sheikh and Farah Shah in pivot roles."/>
+
+</RelativeLayout>

@@ -28,16 +28,24 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
         //Log.d (TAG,"action "+event.getSource ().getTextSelectionStart ()+"");
 
         try {
-            String text = event.getText ().get (0)
-                    .subSequence (event.getSource ().getTextSelectionStart (), event.getSource ()
-                            .getTextSelectionEnd ()).toString ();
-            if(text.trim ().length ()>0){
+            String sentence = event.getText ().get (0).toString ();
+            String word = sentence.subSequence (event.getSource ().getTextSelectionStart (),
+                    event.getSource ().getTextSelectionEnd ()).toString ();
+            if (word.trim ().length () > 0) {
 
                 //:// TODO: 14/06/16  write regex for spaces at both the ends and only alphabets
 
-                startService (new Intent (NewAccessibilityService.this, ChatHeadService.class));
+                if (word.trim ().matches ("([A-za-z]*)")) {
+
+                    Intent in = new Intent (NewAccessibilityService.this, ChatHeadService.class);
+                    in.putExtra ("word", word);
+                    in.putExtra ("sentence", sentence);
+
+                    startService (in);
+                }
             }
-            Log.d (TAG, "text " + text);
+
+            Log.d (TAG, "word : " + word);
 
         } catch (Exception e) {
 

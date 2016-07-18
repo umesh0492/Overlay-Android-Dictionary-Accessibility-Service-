@@ -31,10 +31,7 @@
             </intent-filter>
         </service>
 
-        <service android:name=".service.ChatHeadService"
-            android:exported="true"
-            android:enabled="true"
-            android:process=":findmeout"/>
+        <service android:name=".service.ChatHeadService"/>
 
 
     </application>

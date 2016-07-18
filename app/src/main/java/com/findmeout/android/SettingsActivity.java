@@ -131,6 +131,8 @@ public class SettingsActivity extends Activity {
 
                 if(resultCode == RESULT_CANCELED)
                 {
+                    Toast.makeText (this,"show permission not granted automatically, kindly grant manuallly",Toast.LENGTH_LONG).show ();
+
                     //:// TODO: 17/07/16  show permission not granted automatically, kindly grant manuallly
                 }
 
