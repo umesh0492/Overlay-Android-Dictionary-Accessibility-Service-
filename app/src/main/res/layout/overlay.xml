@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@android:color/holo_blue_light"
-                android:minHeight="150dp"
-                android:minWidth="150dp">
 
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:background="@android:color/holo_blue_light">
 
     <TextView
         android:id="@+id/close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="8sp"
         android:layout_alignParentRight="true"
+        android:padding="8sp"
         android:text="close"/>
 
     <TextView
@@ -21,21 +21,34 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:padding="8sp"
-        android:textSize="14sp"
-        android:textColor="@android:color/white"
         android:layout_toLeftOf="@id/close"
-        android:text="I am overlay dnf gdgdgmdgdmfgfdgdf"/>
+        android:paddingTop="8sp"
+        android:paddingBottom="8sp"
+        android:text="I am overlay"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"/>
 
+    <TextView
+        android:id="@+id/word_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/close"
+        android:layout_below="@id/word"
+        android:text="Verb"
+        android:textColor="@android:color/white"
+        android:textSize="11sp"/>
 
     <TextView
         android:id="@+id/meaning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/word"
-        android:padding="8sp"
-        android:textSize="12sp"
+        android:layout_below="@id/word_type"
+        android:paddingTop="8sp"
+        android:paddingBottom="8sp"
+        android:text="Bhool is an 2014 Pakistani soap series that aired on Hum TV. It is directed by Asad Malik while written by veteran writer and poet Syed Wasi Shah.
+         Series was produced by Momina Duraid at Gemstone Productions."
         android:textColor="@android:color/white"
-        android:text="Bhool is an 2014 Pakistani soap series that aired on Hum TV. It is directed by Asad Malik while written by veteran writer and poet Syed Wasi Shah. Series was produced by Momina Duraid at Gemstone Productions. It stars Sanam Chaudhry, Behroze Sabzwari, Fazila Qazi, Shehroz Sabzwari, Saleem Sheikh and Farah Shah in pivot roles."/>
+        android:textSize="12sp"/>
 
 </RelativeLayout>

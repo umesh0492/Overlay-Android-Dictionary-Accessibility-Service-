@@ -1,4 +1,4 @@
-package com.findmeout.android;
+package com.findmeout.android.ui;
 
 
 import android.annotation.SuppressLint;
@@ -13,9 +13,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.provider.Settings;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.findmeout.android.Preferences;
 import com.findmeout.android.accessibility.AccessibilityUtils;
 
 import java.lang.reflect.Method;
@@ -36,7 +36,6 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
-        setContentView (R.layout.setting_activity);
         requestAccessibilityServicePermission ();
     }
 
@@ -96,7 +95,7 @@ public class SettingsActivity extends Activity {
                     Binder.getCallingUid(), context.getPackageName());
 
           */
-            Log.e ("mode", mode + "");
+            //Log.e ("mode", mode + "");
 
             return AppOpsManager.MODE_ALLOWED == mode;
 
@@ -117,7 +116,6 @@ public class SettingsActivity extends Activity {
     }
 
 
-
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data) {
         /** check if received result code
@@ -129,9 +127,8 @@ public class SettingsActivity extends Activity {
                 break;
             case 1:
 
-                if(resultCode == RESULT_CANCELED)
-                {
-                    Toast.makeText (this,"show permission not granted automatically, kindly grant manuallly",Toast.LENGTH_LONG).show ();
+                if (resultCode == RESULT_CANCELED) {
+                    Toast.makeText (this, "show permission not granted automatically, kindly grant manuallly", Toast.LENGTH_LONG).show ();
 
                     //:// TODO: 17/07/16  show permission not granted automatically, kindly grant manuallly
                 }
@@ -142,6 +139,9 @@ public class SettingsActivity extends Activity {
 
     void showSupportedAppList () {
 
-        Toast.makeText (this,"wowwww",Toast.LENGTH_LONG).show ();
+        //startActivity (new Intent (this,AppListActivity.class));
+        Toast.makeText (this, "wowwww", Toast.LENGTH_LONG).show ();
     }
+
+
 }

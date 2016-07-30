@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "164493425828",
+    "project_id": "firebase-find-me-out"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164493425828:android:411532f874926d0d",
+        "android_client_info": {
+          "package_name": "com.findmeout.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAMGfKValyIYivm7uLC1tFZ_0ONJzDHNrE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

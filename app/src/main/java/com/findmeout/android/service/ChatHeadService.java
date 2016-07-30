@@ -14,12 +14,16 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.findmeout.android.R;
+import com.findmeout.android.data.client.DataClient;
+import com.findmeout.android.model.DictionaryWordModel;
 
 public class ChatHeadService extends Service {
     private static final String TAG = "ChatHeadService";
@@ -31,7 +35,12 @@ public class ChatHeadService extends Service {
 
     private Handler mHandler;
     private Display mDisplay;
+    private int mWidth;
+    private int mHeight;
     TextView tvWord;
+    TextView tvWordType;
+    TextView tvMeaning;
+
 
     String sentence = "";
     String word = "";
@@ -55,9 +64,11 @@ public class ChatHeadService extends Service {
         mDisplay = windowManager.getDefaultDisplay ();
         Point size = new Point ();
         mDisplay.getSize (size);
+        mWidth = size.x;
+        mHeight = size.y;
 
         params = new WindowManager.LayoutParams (
-                WindowManager.LayoutParams.WRAP_CONTENT,
+                mWidth,
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
@@ -66,16 +77,15 @@ public class ChatHeadService extends Service {
                 PixelFormat.TRANSLUCENT);
 
         Log.e (TAG, params.toString ());
-        params.x = 20;
-        params.y = 120;
+        params.gravity = Gravity.BOTTOM | Gravity.CENTER;
+        params.x = 0;
+        params.y = 0;
 
         viewOverlay = layoutInflater.inflate (R.layout.overlay, null);
 
         tvWord = (TextView) viewOverlay.findViewById (R.id.word);
-
-       /* if (word.trim ().length () > 0) {
-            tvWord.setText (word);
-        }*/
+        tvMeaning = (TextView) viewOverlay.findViewById (R.id.meaning);
+        tvWordType = (TextView) viewOverlay.findViewById (R.id.word_type);
 
         viewOverlay.findViewById (R.id.close).setOnClickListener (new View.OnClickListener () {
             @Override
@@ -86,8 +96,48 @@ public class ChatHeadService extends Service {
             }
         });
 
-        windowManager.addView (viewOverlay, params);
+        viewOverlay.setOnTouchListener (new View.OnTouchListener () {
+            private int initialX;
+            private int initialY;
+            private float initialTouchX;
+            private float initialTouchY;
 
+            @Override
+            public boolean onTouch (View v, MotionEvent event) {
+                Log.e (TAG,event.getAction ()+"");
+                switch (event.getAction ()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = params.x;
+                        initialY = params.y;
+                        initialTouchX = event.getRawX ();
+                        initialTouchY = event.getRawY ();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+
+                        initialX = params.x;
+                        initialY = params.y;
+                        initialTouchX = event.getRawX ();
+                        initialTouchY = event.getRawY ();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                       /* if (mWidth / 2 - mWidth / 5 < event.getRawX () &&
+                                mWidth / 2 + mWidth / 5 > event.getRawX () &&
+                                mHeight - mHeight / 5 < event.getRawY ()) {
+
+                            params.x = initialX - (int) (event.getRawX () - initialTouchX);
+                            params.y = initialY - (int) (event.getRawY () - initialTouchY);
+                        }
+                        else {*/
+                            params.x = initialX - (int) (event.getRawX () - initialTouchX);
+                            params.y = initialY - (int) (event.getRawY () - initialTouchY);
+                        //}
+                        windowManager.updateViewLayout (viewOverlay, params);
+                        return true;
+                }
+                return false;
+            }
+        });
+        windowManager.addView (viewOverlay, params);
     }
 
     @Override
@@ -97,7 +147,19 @@ public class ChatHeadService extends Service {
         if (word.trim ().length () > 0) {
             if (tvWord != null) {
                 tvWord.setText (word);
+
+                DictionaryWordModel.Word wordMeaning= DataClient.getWordMeaning (word);
+                if(wordMeaning != null)
+                {
+                    tvMeaning.setText (wordMeaning.getMeaning_1 ());
+                    tvWordType.setText (wordMeaning.getPronunciation ());
+                }
+                else {
+                    tvMeaning.setText ("Can't find the meaning");
+                }
             }
+        }else {
+            stopSelf ();
         }
         return START_STICKY;
     }

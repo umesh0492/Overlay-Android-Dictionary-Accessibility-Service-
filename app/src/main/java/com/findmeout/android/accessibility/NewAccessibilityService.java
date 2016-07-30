@@ -14,8 +14,7 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
     private static final String TAG = "MyAccessibilityService";
 
-    String[] packages = {"com.android.chrome", "com.quora.android", "com.medium.reader", "com.tumblr",
-            "com.google.android.apps.blogger", "se.yo.android.bloglovin", "com.frainz.android.debug"};
+    String[] packages = {"com.medium.reader"};
 
     @Override
     public void onAccessibilityEvent (AccessibilityEvent event) {
@@ -35,14 +34,22 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
                 //:// TODO: 14/06/16  write regex for spaces at both the ends and only alphabets
 
+                Intent in = new Intent (NewAccessibilityService.this, ChatHeadService.class);
+
                 if (word.trim ().matches ("([A-za-z]*)")) {
 
-                    Intent in = new Intent (NewAccessibilityService.this, ChatHeadService.class);
                     in.putExtra ("word", word);
                     in.putExtra ("sentence", sentence);
 
-                    startService (in);
                 }
+                else {
+                    in.putExtra ("word", "");
+                    in.putExtra ("sentence", "");
+
+                }
+
+                startService (in);
+
             }
 
             Log.d (TAG, "word : " + word);
@@ -62,8 +69,8 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
     }
 
+    @Override
     protected void onServiceConnected () {
-        super.onServiceConnected ();
         Log.d (TAG, "Accessibility Service Connected..");
 
         AccessibilityServiceInfo accessibilityServiceInfo = new AccessibilityServiceInfo ();
@@ -84,7 +91,7 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY;
-        accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+        //accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
 
@@ -92,6 +99,8 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
         accessibilityServiceInfo.packageNames = packages;
         setServiceInfo (accessibilityServiceInfo);
+
+        super.onServiceConnected ();
 
     }
 

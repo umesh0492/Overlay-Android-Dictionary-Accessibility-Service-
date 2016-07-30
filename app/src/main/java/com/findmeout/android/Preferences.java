@@ -14,6 +14,8 @@ public class Preferences {
     private static final String PREF_PRI_KEY = "PREF_PRI_KEY";
     private static final String REGISTRATION_DONE = "REGISTRATION_DONE";
     private static final String GCM_ID = "gcm_id";
+    private static final String NEXT_DOWNLOAD_WORD_ID = "NEXT_DOWNLOAD_WORD_ID";
+
 
 
     private static SharedPreferences getSharedPref (Context ctx) {
@@ -98,6 +100,15 @@ public class Preferences {
         return getSharedPref (MainApplication.context).getBoolean (ACCESSIBILITY_PERMISSION, false);
     }
 
+    public static String getNextDownloadWordId () {
+        return getSharedPref (MainApplication.context).getString (NEXT_DOWNLOAD_WORD_ID, "0");
+    }
+
+    public static void setNextDownloadWordId (String id) {
+        Editor edit = getSharedPref (MainApplication.context).edit ();
+        edit.putString (NEXT_DOWNLOAD_WORD_ID, id);
+        edit.commit ();
+    }
 
     public static void onAuthFail(){
 
