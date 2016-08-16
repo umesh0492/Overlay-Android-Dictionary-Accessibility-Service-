@@ -21,6 +21,8 @@ public final class SQLDDL {
         List<String> statements = new ArrayList<> ();
         statements.add (getCreateAppTableDDL ());
         statements.add (getCreateDictionaryTableDDL ());
+        statements.add (getCreateDictionaryMeaningTableDDL ());
+        statements.add (getCreateDictionaryMeaningCategoryTableDDL ());
 
         return statements;
     }
@@ -44,20 +46,52 @@ public final class SQLDDL {
         SQLHelper sqlHelper = new SQLiteHelper ();
 
         List<SQLColumn> columns = new ArrayList<> ();
-        columns.add (new SQLColumn (DataContract.Dictionary._ID,
+        columns.add (new SQLColumn (DataContract.DictionaryWords._ID,
                 sqlHelper.getSQLTypeInteger (), true));
-        columns.add (new SQLColumn (DataContract.Dictionary.COLUMN_NAME_WORD,
+        columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_WORD,
                 sqlHelper.getSQLTypeString ()));
-        columns.add (new SQLColumn (DataContract.Dictionary.COLUMN_NAME_MEANINGS,
+        columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_PHONETIC,
                 sqlHelper.getSQLTypeString ()));
-        columns.add (new SQLColumn (DataContract.Dictionary.COLUMN_NAME_PRONUNCIATION,
+        columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_PHONETIC_SOUND,
                 sqlHelper.getSQLTypeString ()));
-        columns.add (new SQLColumn (DataContract.Dictionary.COLUMN_NAME_PRONUNCIATION_SOUND,
-                sqlHelper.getSQLTypeString ()));
-        columns.add (new SQLColumn (DataContract.Dictionary.COLUMN_NAME_UPDATED_ON,
+        columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_UPDATED_ON,
                 sqlHelper.getSQLTypeString ()));
 
-        return sqlHelper.getTableCreateDDL (DataContract.Dictionary.TABLE_NAME, columns);
+        return sqlHelper.getTableCreateDDL (DataContract.DictionaryWords.TABLE_NAME, columns);
+    }
+
+    private static String getCreateDictionaryMeaningTableDDL () {
+        SQLHelper sqlHelper = new SQLiteHelper ();
+
+        List<SQLColumn> columns = new ArrayList<> ();
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings._ID,
+                sqlHelper.getSQLTypeInteger (), true));
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_MEANING,
+                sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_MEANING_USAGE,
+                sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_WORD_ID,
+                sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_CATEGORY_ID,
+                sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_UPDATED_ON,
+                sqlHelper.getSQLTypeString ()));
+
+        return sqlHelper.getTableCreateDDL (DataContract.DictionaryMeanings.TABLE_NAME, columns);
+    }
+
+    private static String getCreateDictionaryMeaningCategoryTableDDL () {
+        SQLHelper sqlHelper = new SQLiteHelper ();
+
+        List<SQLColumn> columns = new ArrayList<> ();
+        columns.add (new SQLColumn (DataContract.DictionaryMeaningCategories._ID,
+                sqlHelper.getSQLTypeInteger (), true));
+        columns.add (new SQLColumn (DataContract.DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME,
+                sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeaningCategories.COLUMN_NAME_UPDATED_ON,
+                sqlHelper.getSQLTypeString ()));
+
+        return sqlHelper.getTableCreateDDL (DataContract.DictionaryMeaningCategories.TABLE_NAME, columns);
     }
 
 

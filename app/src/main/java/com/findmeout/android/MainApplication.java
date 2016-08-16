@@ -5,7 +5,6 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
-import com.findmeout.android.data.client.DataClient;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
@@ -28,7 +27,7 @@ public class MainApplication extends Application {
         Log.d (TAG, "Subscribed to news topic");
         Log.d (TAG, "InstanceID token: " + FirebaseInstanceId.getInstance ().getToken ());
 
-        DataClient.insertInitApp ();
+        //DataClient.insertInitApp ();
 
     }
 

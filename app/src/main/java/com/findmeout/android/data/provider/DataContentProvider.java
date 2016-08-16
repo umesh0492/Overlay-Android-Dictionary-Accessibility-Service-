@@ -21,10 +21,17 @@ public class DataContentProvider extends ContentProvider {
 
     public static final int APP_LIST = 1;
     public static final int APP_LIST_ID = 2;
-    public static final int DICTIONARY_LIST = 3;
-    public static final int DICTIONARY_LIST_ID = 4;
+    public static final int DICTIONARY_WORD_LIST = 3;
+    public static final int DICTIONARY_WORD_LIST_ID = 4;
+    public static final int DICTIONARY_WORD_MEANING_LIST = 5;
+    public static final int DICTIONARY_WORD_MEANING_LIST_ID = 6;
+    public static final int DICTIONARY_WORD_MEANING_CATEGORY_LIST = 7;
+    public static final int DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID = 8;
     public static final String APP_URI = "app_list";
-    public static final String DICTIONARY_URI = "dictionary_list";
+    public static final String DICTIONARY_WORD_URI = "dictionary_word_list";
+    public static final String DICTIONARY_WORD_MEANING_URI = "dictionary_word_meaning_list";
+    public static final String DICTIONARY_WORD_MEANING_CATEGORY_URI = "dictionary_word_meaning_category_list";
+
 
     private static final UriMatcher uriMatcher = new UriMatcher (UriMatcher.NO_MATCH);
     private static final String AUTHORITY = DataContract.CONTENT_AUTHORITY;
@@ -34,8 +41,13 @@ public class DataContentProvider extends ContentProvider {
 
         uriMatcher.addURI (AUTHORITY, APP_URI, APP_LIST);
         uriMatcher.addURI (AUTHORITY, APP_URI + "/#", APP_LIST_ID);
-        uriMatcher.addURI (AUTHORITY, DICTIONARY_URI, DICTIONARY_LIST);
-        uriMatcher.addURI (AUTHORITY, DICTIONARY_URI + "/#", DICTIONARY_LIST_ID);
+        uriMatcher.addURI (AUTHORITY, DICTIONARY_WORD_URI, DICTIONARY_WORD_LIST);
+        uriMatcher.addURI (AUTHORITY, DICTIONARY_WORD_URI + "/#", DICTIONARY_WORD_LIST_ID);
+        uriMatcher.addURI (AUTHORITY, DICTIONARY_WORD_MEANING_URI, DICTIONARY_WORD_MEANING_LIST);
+        uriMatcher.addURI (AUTHORITY, DICTIONARY_WORD_MEANING_URI + "/#", DICTIONARY_WORD_MEANING_LIST_ID);
+        uriMatcher.addURI (AUTHORITY, DICTIONARY_WORD_MEANING_CATEGORY_URI, DICTIONARY_WORD_MEANING_CATEGORY_LIST);
+        uriMatcher.addURI (AUTHORITY, DICTIONARY_WORD_MEANING_CATEGORY_URI + "/#", DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID);
+
 
     }
 
@@ -68,17 +80,42 @@ public class DataContentProvider extends ContentProvider {
                         null, DataContract.AppList.COLUMN_NAME_APP_PACKAGE + " ASC",
                         "1000");
 
-            case DICTIONARY_LIST_ID:
-                return db.query (true, DataContract.Dictionary.TABLE_NAME, columns, selection,
+            case DICTIONARY_WORD_LIST_ID:
+                return db.query (true, DataContract.DictionaryWords.TABLE_NAME, columns, selection,
                         selectionArgs, null,
-                        null, DataContract.Dictionary._ID + " ASC",
+                        null, DataContract.DictionaryWords._ID + " ASC",
                         "1");
 
-            case DICTIONARY_LIST:
-                return db.query (true, DataContract.Dictionary.TABLE_NAME, columns, selection,
+            case DICTIONARY_WORD_LIST:
+                return db.query (true, DataContract.DictionaryWords.TABLE_NAME, columns, selection,
                         selectionArgs, null,
-                        null, DataContract.Dictionary._ID + " ASC",
+                        null, DataContract.DictionaryWords._ID + " ASC",
                         "100");
+
+            case DICTIONARY_WORD_MEANING_LIST_ID:
+                return db.query (true, DataContract.DictionaryMeanings.TABLE_NAME, columns, selection,
+                        selectionArgs, null,
+                        null, DataContract.DictionaryMeanings._ID + " ASC",
+                        "1");
+
+            case DICTIONARY_WORD_MEANING_LIST:
+                return db.query (true, DataContract.DictionaryMeanings.TABLE_NAME, columns, selection,
+                        selectionArgs, null,
+                        null, DataContract.DictionaryMeanings._ID + " ASC",
+                        "100");
+
+            case DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID:
+                return db.query (true, DataContract.DictionaryMeaningCategories.TABLE_NAME, columns, selection,
+                        selectionArgs, null,
+                        null, DataContract.DictionaryMeaningCategories._ID + " ASC",
+                        "1");
+
+            case DICTIONARY_WORD_MEANING_CATEGORY_LIST:
+                return db.query (true, DataContract.DictionaryMeaningCategories.TABLE_NAME, columns, selection,
+                        selectionArgs, null,
+                        null, DataContract.DictionaryMeaningCategories._ID + " ASC",
+                        "100");
+
 
             default:
                 throw new RuntimeException ("No content provider URI match.");
@@ -98,13 +135,29 @@ public class DataContentProvider extends ContentProvider {
                 return "vnd.android.cursor.item/vnd." + DataContract.CONTENT_AUTHORITY + "." +
                         APP_URI;
 
-            case DICTIONARY_LIST:
+            case DICTIONARY_WORD_LIST:
                 return "vnd.android.cursor.dir/vnd." + DataContract.CONTENT_AUTHORITY + "." +
-                        DICTIONARY_URI;
+                        DICTIONARY_WORD_URI;
 
-            case DICTIONARY_LIST_ID:
+            case DICTIONARY_WORD_LIST_ID:
                 return "vnd.android.cursor.item/vnd." + DataContract.CONTENT_AUTHORITY + "." +
-                        DICTIONARY_URI;
+                        DICTIONARY_WORD_URI;
+
+            case DICTIONARY_WORD_MEANING_LIST:
+                return "vnd.android.cursor.dir/vnd." + DataContract.CONTENT_AUTHORITY + "." +
+                        DICTIONARY_WORD_MEANING_URI;
+
+            case DICTIONARY_WORD_MEANING_LIST_ID:
+                return "vnd.android.cursor.item/vnd." + DataContract.CONTENT_AUTHORITY + "." +
+                        DICTIONARY_WORD_MEANING_URI;
+
+            case DICTIONARY_WORD_MEANING_CATEGORY_LIST:
+                return "vnd.android.cursor.dir/vnd." + DataContract.CONTENT_AUTHORITY + "." +
+                        DICTIONARY_WORD_MEANING_CATEGORY_URI;
+
+            case DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID:
+                return "vnd.android.cursor.item/vnd." + DataContract.CONTENT_AUTHORITY + "." +
+                        DICTIONARY_WORD_MEANING_CATEGORY_URI;
 
             default:
                 throw new RuntimeException ("No content provider URI match.");
@@ -130,14 +183,34 @@ public class DataContentProvider extends ContentProvider {
                 return Uri.parse ("content://" + AUTHORITY + "/" + APP_URI + "/"
                         + insert_id);
 
-            case DICTIONARY_LIST_ID:
+            case DICTIONARY_WORD_LIST_ID:
                 try {
-                    insert_id = db.insertOrThrow (DataContract.Dictionary.TABLE_NAME,
+                    insert_id = db.insertOrThrow (DataContract.DictionaryWords.TABLE_NAME,
                             null, contentValues);
                 } catch (SQLException ignored) {
 
                 }
-                return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_URI + "/"
+                return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_WORD_URI + "/"
+                        + insert_id);
+
+            case DICTIONARY_WORD_MEANING_LIST_ID:
+                try {
+                    insert_id = db.insertOrThrow (DataContract.DictionaryMeanings.TABLE_NAME,
+                            null, contentValues);
+                } catch (SQLException ignored) {
+
+                }
+                return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_WORD_MEANING_URI + "/"
+                        + insert_id);
+
+            case DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID:
+                try {
+                    insert_id = db.insertOrThrow (DataContract.DictionaryMeaningCategories.TABLE_NAME,
+                            null, contentValues);
+                } catch (SQLException ignored) {
+
+                }
+                return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
                         + insert_id);
 
             default:
@@ -151,7 +224,7 @@ public class DataContentProvider extends ContentProvider {
         assert db != null;
 
         switch (uriMatcher.match (uri)) {
-            case DICTIONARY_LIST_ID:
+            /*case DICTIONARY_LIST_ID:
                 return db.delete (DataContract.Dictionary.TABLE_NAME, selection,
                         selectionArgs);
 
@@ -159,7 +232,7 @@ public class DataContentProvider extends ContentProvider {
                 db.delete (DataContract.AppList.TABLE_NAME, null, null);
                 db.delete (DataContract.Dictionary.TABLE_NAME, null,
                         null);
-                return 1;
+                return 1;*/
 
             default:
                 throw new RuntimeException ("No content provider URI match.");
@@ -168,6 +241,9 @@ public class DataContentProvider extends ContentProvider {
 
     @Override
     public int update (@NonNull Uri uri, ContentValues contentValues, String s, String[] strings) {
+
+
+        //:// TODO: 17/08/16 if update fail insert the values
 
         SQLiteDatabase db = dbHelper.getWritableDatabase ();
         assert db != null;
@@ -178,10 +254,17 @@ public class DataContentProvider extends ContentProvider {
                 return db.update (DataContract.AppList.TABLE_NAME, contentValues,
                         s, strings);
 
-            case DICTIONARY_LIST_ID:
-                return db.update (DataContract.Dictionary.TABLE_NAME, contentValues,
+            case DICTIONARY_WORD_LIST_ID:
+                return db.update (DataContract.DictionaryWords.TABLE_NAME, contentValues,
                         s, strings);
 
+            case DICTIONARY_WORD_MEANING_LIST_ID:
+                return db.update (DataContract.DictionaryMeanings.TABLE_NAME, contentValues,
+                        s, strings);
+
+            case DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID:
+                return db.update (DataContract.DictionaryMeaningCategories.TABLE_NAME, contentValues,
+                        s, strings);
             default:
                 throw new RuntimeException ("No content provider URI match.");
         }

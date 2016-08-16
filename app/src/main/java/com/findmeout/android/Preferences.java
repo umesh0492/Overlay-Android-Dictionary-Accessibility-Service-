@@ -15,7 +15,7 @@ public class Preferences {
     private static final String REGISTRATION_DONE = "REGISTRATION_DONE";
     private static final String GCM_ID = "gcm_id";
     private static final String NEXT_DOWNLOAD_WORD_ID = "NEXT_DOWNLOAD_WORD_ID";
-
+    private static final String NEXT_DOWNLOAD_WORD_MEANING_ID = "NEXT_DOWNLOAD_WORD_MEANING_ID";
 
 
     private static SharedPreferences getSharedPref (Context ctx) {
@@ -109,6 +109,17 @@ public class Preferences {
         edit.putString (NEXT_DOWNLOAD_WORD_ID, id);
         edit.commit ();
     }
+
+    public static String getNextDownloadWordMeaningId () {
+        return getSharedPref (MainApplication.context).getString (NEXT_DOWNLOAD_WORD_MEANING_ID, "0");
+    }
+
+    public static void setNextDownloadWordMeaningId (String id) {
+        Editor edit = getSharedPref (MainApplication.context).edit ();
+        edit.putString (NEXT_DOWNLOAD_WORD_MEANING_ID, id);
+        edit.commit ();
+    }
+
 
     public static void onAuthFail(){
 

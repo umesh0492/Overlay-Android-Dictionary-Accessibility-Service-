@@ -25,6 +25,8 @@ import com.findmeout.android.R;
 import com.findmeout.android.data.client.DataClient;
 import com.findmeout.android.model.DictionaryWordModel;
 
+import java.util.ArrayList;
+
 public class ChatHeadService extends Service {
     private static final String TAG = "ChatHeadService";
 
@@ -148,11 +150,11 @@ public class ChatHeadService extends Service {
             if (tvWord != null) {
                 tvWord.setText (word);
 
-                DictionaryWordModel.Word wordMeaning= DataClient.getWordMeaning (word);
+                ArrayList<DictionaryWordModel.Meaning> wordMeaning= DataClient.getWordMeaning (word);
                 if(wordMeaning != null)
                 {
-                    tvMeaning.setText (wordMeaning.getMeaning_1 ());
-                    tvWordType.setText (wordMeaning.getPronunciation ());
+                    tvMeaning.setText (wordMeaning.get (0).getMeaning ());
+                    tvWordType.setText (wordMeaning.get(0).getMeaningUsage ());
                 }
                 else {
                     tvMeaning.setText ("Can't find the meaning");

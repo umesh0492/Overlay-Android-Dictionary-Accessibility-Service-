@@ -7,9 +7,12 @@ import android.net.Uri;
 
 import com.findmeout.android.MainApplication;
 import com.findmeout.android.data.provider.DataContract;
-import com.findmeout.android.data.provider.DataContract.Dictionary;
+import com.findmeout.android.data.provider.DataContract.DictionaryMeaningCategories;
+import com.findmeout.android.data.provider.DataContract.DictionaryMeanings;
+import com.findmeout.android.data.provider.DataContract.DictionaryWords;
 import com.findmeout.android.model.AppListModel;
 import com.findmeout.android.model.DictionaryWordModel;
+import com.findmeout.android.model.GcmModel;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,8 +22,12 @@ import java.util.TimeZone;
 
 import static com.findmeout.android.data.provider.DataContentProvider.APP_LIST_ID;
 import static com.findmeout.android.data.provider.DataContentProvider.APP_URI;
-import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_LIST_ID;
-import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_URI;
+import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_WORD_LIST_ID;
+import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID;
+import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_WORD_MEANING_CATEGORY_URI;
+import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_WORD_MEANING_LIST_ID;
+import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_WORD_MEANING_URI;
+import static com.findmeout.android.data.provider.DataContentProvider.DICTIONARY_WORD_URI;
 
 
 /**
@@ -32,13 +39,13 @@ public final class DataClient {
 
     private static ContentResolver contentResolver = MainApplication.context.getContentResolver ();
 
-    public static void insertInitApp () {
-       /*
+   /* public static void insertInitApp () {
+       *//*
                 HIKE ("com.bsb.hike"),
                 GMAIL ("com.google.android.gm"), HANGOUT ("com.google.android.talk"),
                 MESSENGER ("com.google.android.apps.messaging"),
                 WHATSAPP("com.whatsapp"), FACEBOOK("com.facebook.katana");
-*/
+*//*
         AppListModel app = new AppListModel ();
         app.setPackage_name ("com.medium.reader");
         app.setIs_active (true);
@@ -70,7 +77,7 @@ public final class DataClient {
         app4.setUpdated_on (UTCString ());
         //Log.e ("db ins 4", String.valueOf (insertApp (app4)));
 
-    }
+    }*/
 
     public static String UTCString () {
         TimeZone tz = TimeZone.getTimeZone ("UTC");
@@ -94,31 +101,131 @@ public final class DataClient {
                 + APP_LIST_ID), contentValues);
     }
 
-    public static Uri insertDictionary (DictionaryWordModel.Word model) {
+    public static Uri insertDictionaryWord (DictionaryWordModel.Word model) {
 
         ContentValues contentValues = new ContentValues ();
 
-        contentValues.put (Dictionary._ID, model.getId ());
-        contentValues.put (Dictionary.COLUMN_NAME_WORD,
+        contentValues.put (DictionaryWords._ID, model.getWordId ());
+        contentValues.put (DictionaryWords.COLUMN_NAME_WORD,
                 model.getWord ());
-        contentValues.put (Dictionary
-                .COLUMN_NAME_MEANINGS, model.getMeanings ());
-        contentValues.put (Dictionary
-                .COLUMN_NAME_PRONUNCIATION, model.getPronunciation ());
-        contentValues.put (Dictionary
-                .COLUMN_NAME_PRONUNCIATION_SOUND, model.getPronunciationSound ());
-        contentValues.put (Dictionary
+        contentValues.put (DictionaryWords
+                .COLUMN_NAME_PHONETIC, model.getPhonetic ());
+        contentValues.put (DictionaryWords
+                .COLUMN_NAME_PHONETIC_SOUND, model.getPhoneticSound ());
+        contentValues.put (DictionaryWords
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
-        return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_URI + "/"
-                + DICTIONARY_LIST_ID), contentValues);
+        return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
+                + DICTIONARY_WORD_LIST_ID), contentValues);
     }
 
-    public static int getAppCount () {
+    public static int updateDictionaryWord (GcmModel model) {
+        ContentValues contentValues = new ContentValues ();
+
+        contentValues.put (DictionaryWords._ID, model.getWord ());
+        contentValues.put (DictionaryWords.COLUMN_NAME_WORD,
+                model.getWord ());
+        contentValues.put (DictionaryWords
+                .COLUMN_NAME_PHONETIC, model.getPhonetic ());
+        contentValues.put (DictionaryWords
+                .COLUMN_NAME_PHONETIC_SOUND, model.getPhoneticSound ());
+        contentValues.put (DictionaryWords
+                .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
+
+        return contentResolver.update (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
+                + DICTIONARY_WORD_LIST_ID), contentValues, DictionaryWords._ID+" =? ",new String[]{model.getWordId ()});
+    }
+
+    public static int deleteDictionaryWord (GcmModel model) {
+        return contentResolver.delete (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
+                + DICTIONARY_WORD_LIST_ID), DictionaryWords._ID+" =? ",new String[]{model.getWordId ()});
+    }
+
+    public static Uri insertDictionaryWordMeaning (DictionaryWordModel.Meaning model) {
+
+        ContentValues contentValues = new ContentValues ();
+
+        contentValues.put (DictionaryMeanings._ID, model.getMeaningId ());
+        contentValues.put (DictionaryMeanings.COLUMN_NAME_MEANING,
+                model.getMeaning ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_MEANING_USAGE, model.getMeaningUsage ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_WORD_ID, model.getWordId ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_CATEGORY_ID, model.getCategoryId ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
+
+        return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI + "/"
+                + DICTIONARY_WORD_MEANING_LIST_ID), contentValues);
+    }
+
+    public static int updateDictionaryWordMeaning (GcmModel model) {
+        ContentValues contentValues = new ContentValues ();
+
+        contentValues.put (DictionaryMeanings._ID, model.getMeaningId ());
+        contentValues.put (DictionaryMeanings.COLUMN_NAME_MEANING,
+                model.getMeaning ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_MEANING_USAGE, model.getMeaningUsage ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_WORD_ID, model.getWordId ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_CATEGORY_ID, model.getCategoryId ());
+        contentValues.put (DictionaryMeanings
+                .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
+
+        return contentResolver.update (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI + "/"
+                + DICTIONARY_WORD_MEANING_LIST_ID), contentValues,DictionaryMeanings._ID+" =? ",new String[]{model.getMeaningId ()});
+
+    }
+
+    public static int deleteDictionaryWordMeaning (GcmModel model) {
+
+        return contentResolver.delete (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI + "/"
+                + DICTIONARY_WORD_MEANING_LIST_ID), DictionaryMeanings._ID+" =? ",new String[]{model.getMeaningId ()});
+
+    }
+
+    public static Uri insertDictionaryWordMeaningCategory (DictionaryWordModel.Category model) {
+
+        ContentValues contentValues = new ContentValues ();
+
+        contentValues.put (DictionaryMeaningCategories._ID, model.getCategoryID ());
+        contentValues.put (DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME,
+                model.getCategoryName ());
+        contentValues.put (DictionaryMeaningCategories
+                .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
+
+        return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
+                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), contentValues);
+    }
+
+    public static int updateDictionaryWordMeaningCategory (GcmModel model) {
+        ContentValues contentValues = new ContentValues ();
+
+        contentValues.put (DictionaryMeaningCategories._ID, model.getCategoryId ());
+        contentValues.put (DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME,
+                model.getCategoryName ());
+        contentValues.put (DictionaryMeaningCategories.COLUMN_NAME_UPDATED_ON, model.getUpdatedOn());
+
+        return contentResolver.update (Uri.parse (PREFIX + "/"
+                + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
+                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), contentValues,
+                DictionaryMeaningCategories._ID+" =? ", new String[]{model.getCategoryId ()});
+    }
+
+    public static int deleteDictionaryWordMeaningCategory (GcmModel model) {
+        return contentResolver.delete (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
+                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), DictionaryMeaningCategories._ID+" =? ",new String[]{model.getCategoryId ()});
+    }
+
+ /*   public static int getAppCount () {
 
         String[] columns = {DataContract.AppList.COLUMN_NAME_APP_PACKAGE};
 
-        Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + DICTIONARY_URI),
+        Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + APP_URI),
                 columns, null, null, null);
 
         assert cursor != null;
@@ -126,46 +233,92 @@ public final class DataClient {
         cursor.close ();
 
         return count;
-    }
+    }*/
+
+    //:// TODO: 31/07/16  need to implement category id with enum 
+
+    public static ArrayList<DictionaryWordModel.Meaning> getWordMeaning (String word) {
+
+        String[] columnsMeaning = {
+                DictionaryMeanings._ID,
+                DictionaryMeanings.COLUMN_NAME_MEANING,
+                DictionaryMeanings.COLUMN_NAME_MEANING_USAGE,
+                DictionaryMeanings.COLUMN_NAME_CATEGORY_ID
 
 
-    public static DictionaryWordModel.Word getWordMeaning (String word) {
-
-        String[] columns = {
-                Dictionary._ID,
-                Dictionary.COLUMN_NAME_WORD,
-                Dictionary.COLUMN_NAME_MEANINGS,
-                Dictionary.COLUMN_NAME_UPDATED_ON
         };
 
-        Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + DICTIONARY_URI),
-                columns, Dictionary.COLUMN_NAME_WORD + " = ? ", new String[]{word}, null);
+        DictionaryWordModel.Word wordModel = getWordDetail (word);
 
-        assert cursor != null;
-        if (cursor.getCount () > 0) {
-            cursor.moveToFirst ();
+        if(wordModel.getWordId ()!=null) {
 
-            DictionaryWordModel.Word mWordMeaning = new DictionaryWordModel.Word ();
+            ArrayList<DictionaryWordModel.Meaning> mWordMeanings = new ArrayList<> ();
 
-            mWordMeaning.setId (cursor.getString (cursor.getColumnIndexOrThrow (
-                    Dictionary._ID)));
-            mWordMeaning.setMeanings (cursor.getString (cursor.getColumnIndexOrThrow (
-                    Dictionary.COLUMN_NAME_MEANINGS)));
-            mWordMeaning.setWord (cursor.getString (cursor.getColumnIndexOrThrow (
-                    Dictionary.COLUMN_NAME_WORD)));
-            mWordMeaning.setUpdatedOn (cursor.getString (cursor.getColumnIndexOrThrow (
-                    Dictionary.COLUMN_NAME_UPDATED_ON)));
 
+            Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI),
+                    columnsMeaning, DictionaryMeanings.COLUMN_NAME_WORD_ID + " = ? ", new String[]{wordModel.getWordId ()}, null);
+
+            assert cursor != null;
+            //if (cursor.getCount () > 0)
+            {
+                cursor.moveToFirst ();
+                while (cursor.moveToNext ()) {
+
+                    DictionaryWordModel.Meaning mWordMeaning = new DictionaryWordModel.Meaning ();
+
+                    mWordMeaning.setMeaningId (cursor.getString (cursor.getColumnIndexOrThrow (
+                            DictionaryMeanings._ID)));
+                    mWordMeaning.setMeaning (cursor.getString (cursor.getColumnIndexOrThrow (
+                            DictionaryMeanings.COLUMN_NAME_MEANING)));
+                    mWordMeaning.setMeaningUsage (cursor.getString (cursor.getColumnIndexOrThrow (
+                            DictionaryMeanings.COLUMN_NAME_MEANING_USAGE)));
+                    mWordMeaning.setCategoryId (cursor.getString (cursor.getColumnIndexOrThrow (
+                            DictionaryMeanings.COLUMN_NAME_CATEGORY_ID)));
+
+                    mWordMeanings.add (mWordMeaning);
+                }
+            }
             cursor.close ();
-            return mWordMeaning;
+            return mWordMeanings;
+
         }
-        cursor.close ();
 
         return null;
     }
 
+    private static DictionaryWordModel.Word getWordDetail (String word) {
 
-    public static void updateAppActivieStatus (String appPackage, boolean isActive) {
+        String[] columnsWord = {
+                DictionaryWords._ID,
+                DictionaryWords.COLUMN_NAME_PHONETIC,
+                DictionaryWords.COLUMN_NAME_PHONETIC_SOUND
+        };
+
+        DictionaryWordModel.Word wordModel = new DictionaryWordModel.Word ();
+        wordModel.setWord (word);
+        Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI),
+                columnsWord, DictionaryWords.COLUMN_NAME_WORD + " = ? ", new String[]{word}, null);
+
+        assert cursor != null;
+        if (cursor.moveToFirst ()) {
+            wordModel.setWordId (cursor.getString (cursor.getColumnIndexOrThrow (
+                    DictionaryWords._ID)));
+            wordModel.setPhonetic (cursor.getString (cursor.getColumnIndexOrThrow (
+                    DictionaryWords.COLUMN_NAME_PHONETIC)));
+            wordModel.setPhoneticSound (cursor.getString (cursor.getColumnIndexOrThrow (
+                    DictionaryWords.COLUMN_NAME_PHONETIC_SOUND)));
+        }
+        cursor.close ();
+
+        return wordModel;
+    }
+
+
+
+
+
+
+   /* public static void updateAppActivieStatus (String appPackage, boolean isActive) {
 
         ContentValues contentValues = new ContentValues ();
 
@@ -244,6 +397,6 @@ public final class DataClient {
         cursor.close ();
 
         return appPackageList;
-    }
+    }*/
 
 }

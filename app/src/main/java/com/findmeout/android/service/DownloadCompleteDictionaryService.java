@@ -27,7 +27,9 @@ public class DownloadCompleteDictionaryService extends Service {
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        requestServer (Preferences.getNextDownloadWordId ());
+        requestCategories ();
+        requestWords ();
+        requestMeanings ();
         return START_STICKY;
     }
 
@@ -37,8 +39,32 @@ public class DownloadCompleteDictionaryService extends Service {
         return null;
     }
 
-    void requestServer (String start_id) {
+    void requestCategories () {
 
+        ApiInterface apiService =
+                ApiClient.getClient ().create (ApiInterface.class);
+
+        Call<DictionaryWordModel> call = apiService.getWordMeaningCategories ();
+        call.enqueue (new Callback<DictionaryWordModel> () {
+            @Override
+            public void onResponse (Call<DictionaryWordModel> call, Response<DictionaryWordModel> response) {
+                //insertWordResultInDB (response.body ().getWords ());
+               // insertWordMeaningResultInDB (response.body ().getMeanings ());
+                insertWordMeaningCategoryResultInDB (response.body ().getCategories ());
+
+            }
+
+            @Override
+            public void onFailure (Call<DictionaryWordModel> call, Throwable t) {
+                // Log error here since request failed
+                Log.e (TAG, t.toString ());
+            }
+        });
+    }
+
+    void requestWords () {
+
+        String start_id = Preferences.getNextDownloadWordId ();
         ApiInterface apiService =
                 ApiClient.getClient ().create (ApiInterface.class);
 
@@ -46,13 +72,12 @@ public class DownloadCompleteDictionaryService extends Service {
         call.enqueue (new Callback<DictionaryWordModel> () {
             @Override
             public void onResponse (Call<DictionaryWordModel> call, Response<DictionaryWordModel> response) {
-                ArrayList<DictionaryWordModel.Word> words = response.body ().getWords ();
-                Log.d (TAG, "Number of words received: " + words.size ());
-                insertWordResultInDB (words);
+                insertWordResultInDB (response.body ().getWords ());
+
                 String nextId = response.body ().getNextId ();
                 Preferences.setNextDownloadWordId (nextId);
                 if (nextId != null) {
-                    requestServer (nextId);
+                    requestWords ();
                 }
                 else {
                     stopSelf ();
@@ -67,10 +92,55 @@ public class DownloadCompleteDictionaryService extends Service {
         });
     }
 
+    void requestMeanings () {
+
+        final String[] start_id = {Preferences.getNextDownloadWordMeaningId ()};
+        ApiInterface apiService =
+                ApiClient.getClient ().create (ApiInterface.class);
+
+        Call<DictionaryWordModel> call = apiService.getWordMeanings (start_id[0]);
+        call.enqueue (new Callback<DictionaryWordModel> () {
+            @Override
+            public void onResponse (Call<DictionaryWordModel> call, Response<DictionaryWordModel> response) {
+                insertWordMeaningResultInDB (response.body ().getMeanings ());
+
+                start_id[0] = response.body ().getNextId ();
+                Preferences.setNextDownloadWordMeaningId (start_id[0]);
+                if (start_id[0] != null) {
+                    requestMeanings ();
+                }
+                else if(null == Preferences.getNextDownloadWordId ()) {
+                    stopSelf ();
+                }
+            }
+
+            @Override
+            public void onFailure (Call<DictionaryWordModel> call, Throwable t) {
+                // Log error here since request failed
+                Log.e (TAG, t.toString ());
+            }
+        });
+    }
+
+
+    private void insertWordMeaningCategoryResultInDB (ArrayList<DictionaryWordModel.Category> wordMeaningCategories) {
+
+        for (DictionaryWordModel.Category wordMeaningCategory : wordMeaningCategories) {
+            DataClient.insertDictionaryWordMeaningCategory (wordMeaningCategory);
+        }
+    }
+
+    private void insertWordMeaningResultInDB (ArrayList<DictionaryWordModel.Meaning> wordMeanings) {
+
+        for (DictionaryWordModel.Meaning wordMeaning : wordMeanings) {
+            DataClient.insertDictionaryWordMeaning (wordMeaning);
+        }
+    }
+
     void insertWordResultInDB (ArrayList<DictionaryWordModel.Word> wordModelArrayList) {
 
         for (DictionaryWordModel.Word wordModel : wordModelArrayList) {
-            DataClient.insertDictionary (wordModel);
+            DataClient.insertDictionaryWord (wordModel);
         }
     }
 

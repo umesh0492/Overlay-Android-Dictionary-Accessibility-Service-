@@ -39,12 +39,24 @@ public final class DataContract {
         public static final String COLUMN_NAME_UPDATED_ON = "updated_on";
     }
 
-    public static abstract class Dictionary implements BaseColumns {
-        public static final String TABLE_NAME = "dictionary";
+    public static abstract class DictionaryWords implements BaseColumns {
+        public static final String TABLE_NAME = "dictionary_word";
         public static final String COLUMN_NAME_WORD = "word";
-        public static final String COLUMN_NAME_MEANINGS = "meanings";
-        public static final String COLUMN_NAME_PRONUNCIATION = "pronunciation";
-        public static final String COLUMN_NAME_PRONUNCIATION_SOUND = "pronunciation_sound";
+        public static final String COLUMN_NAME_PHONETIC = "phonetic";
+        public static final String COLUMN_NAME_PHONETIC_SOUND = "phonetic_sound";
+        public static final String COLUMN_NAME_UPDATED_ON = "updated_on";
+    }
+    public static abstract class DictionaryMeanings implements BaseColumns {
+        public static final String TABLE_NAME = "dictionary_meaning";
+        public static final String COLUMN_NAME_WORD_ID = "word_id";
+        public static final String COLUMN_NAME_MEANING = "meaning";
+        public static final String COLUMN_NAME_MEANING_USAGE = "meaning_usage";
+        public static final String COLUMN_NAME_CATEGORY_ID = "category_id";
+        public static final String COLUMN_NAME_UPDATED_ON = "updated_on";
+    }
+    public static abstract class DictionaryMeaningCategories implements BaseColumns {
+        public static final String TABLE_NAME = "dictionary_meaning_categories";
+        public static final String COLUMN_NAME_CATEGORY_NAME = "category_name";
         public static final String COLUMN_NAME_UPDATED_ON = "updated_on";
     }
 }

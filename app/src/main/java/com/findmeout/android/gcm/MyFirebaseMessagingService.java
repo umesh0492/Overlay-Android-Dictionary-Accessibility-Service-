@@ -14,9 +14,13 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.findmeout.android.R;
+import com.findmeout.android.data.client.DataClient;
+import com.findmeout.android.model.DictionaryWordModel;
+import com.findmeout.android.model.GcmModel;
 import com.findmeout.android.ui.SettingsActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+import com.google.gson.Gson;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -29,7 +33,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     // [START receive_message]
     @Override
-    public void onMessageReceived(RemoteMessage remoteMessage) {
+    public void onMessageReceived (RemoteMessage remoteMessage) {
         // [START_EXCLUDE]
         // There are two types of messages data messages and notification messages. Data messages are handled
         // here in onMessageReceived whether the app is in the foreground or background. Data messages are the type
@@ -42,47 +46,130 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // TODO(developer): Handle FCM messages here.
         // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
-        Log.d(TAG, "From: " + remoteMessage.getFrom());
+        Log.d (TAG, "From: " + remoteMessage.getFrom ());
 
         // Check if message contains a data payload.
-        if (remoteMessage.getData().size() > 0) {
-            Log.d(TAG, "Message data payload: " + remoteMessage.getData());
+
+        if (remoteMessage.getData ().size () > 0) {
+            GcmModel model = new Gson ().fromJson (remoteMessage.getData ().get ("data"), GcmModel.class);
+            if (null != model) {
+
+                actAccordingToTarget (model);
+
+            }
+            Log.d (TAG, "Message data payload: " + remoteMessage.getData ());
         }
 
         // Check if message contains a notification payload.
-        if (remoteMessage.getNotification() != null) {
-            Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
+        if (remoteMessage.getNotification () != null) {
+            Log.d (TAG, "Message Notification Body: " + remoteMessage.getNotification ().getBody ());
         }
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.
     }
+
+    private void actAccordingToTarget (GcmModel model) {
+
+        switch (model.getType ()){
+
+            case 0:
+
+                //:// TODO: 17/08/16 check whether categories are there, else run download service
+                DictionaryWordModel.Category category = new DictionaryWordModel.Category ();
+                category.setCategoryID (model.getCategoryId ());
+                category.setCategoryName (model.getCategoryName ());
+                category.setUpdatedOn (model.getUpdatedOn ());
+
+                DataClient.insertDictionaryWordMeaningCategory (category);
+                break;
+
+            case 1:
+                DataClient.updateDictionaryWordMeaningCategory (model);
+
+                break;
+
+            case 2:
+                DataClient.deleteDictionaryWordMeaningCategory (model);
+
+                break;
+
+            case 3:
+                //:// TODO: 17/08/16 check whether meanings are there  , else run download service
+
+                DictionaryWordModel.Meaning meaning = new DictionaryWordModel.Meaning ();
+                meaning.setCategoryId (model.getCategoryId ());
+                meaning.setMeaning (model.getMeaning ());
+                meaning.setMeaningId (model.getMeaningId ());
+                meaning.setMeaningUsage (model.getMeaningUsage ());
+                meaning.setWordId (model.getWordId ());
+                meaning.setUpdatedOn (model.getUpdatedOn ());
+
+                DataClient.insertDictionaryWordMeaning(meaning);
+
+                break;
+
+            case 4:
+                DataClient.updateDictionaryWordMeaning (model);
+
+                break;
+
+            case 5:
+                DataClient.deleteDictionaryWordMeaning (model);
+
+                break;
+
+            case 6:
+                //:// TODO: 17/08/16 check whether words are there , else run download service
+
+                DictionaryWordModel.Word word = new DictionaryWordModel.Word ();
+                word.setWord (model.getWord ());
+                word.setWordId (model.getWordId ());
+                word.setPhonetic (model.getPhonetic ());
+                word.setPhoneticSound (model.getPhoneticSound ());
+                word.setUpdatedOn (model.getUpdatedOn ());
+
+                DataClient.insertDictionaryWord (word);
+
+                break;
+
+            case 7:
+                DataClient.updateDictionaryWord (model);
+                break;
+
+            case 8:
+                DataClient.deleteDictionaryWord (model);
+
+                break;
+
+            case 9: sendNotification (model);
+                break;
+        }
+    }
     // [END receive_message]
 
-    /**
-     * Create and show a simple notification containing the received FCM message.
-     *
-     * @param messageBody FCM message body received.
-     */
-    private void sendNotification(String messageBody) {
+
+    private void sendNotification (GcmModel message) {
         Intent intent = new Intent (this, SettingsActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+        intent.addFlags (Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity (this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
-        Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_info_black_24dp)
-                .setContentTitle("FCM Message")
-                .setContentText(messageBody)
-                .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(pendingIntent);
+        //:// TODO: 17/08/16 need to handle image and url
+
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri (RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder (this)
+                .setSmallIcon (R.mipmap.ic_launcher)
+                .setContentTitle (message.getTitle ())
+                .setContentText (message.getMessage ())
+                .setAutoCancel (true)
+                .setSound (defaultSoundUri)
+                .setContentIntent (pendingIntent);
 
         NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) getSystemService (Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify (0 /* ID of notification */, notificationBuilder.build ());
     }
 }
 
