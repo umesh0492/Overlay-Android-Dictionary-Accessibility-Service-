@@ -22,6 +22,7 @@ public class DownloadCompleteDictionaryService extends Service {
 
     private static final String TAG = DownloadCompleteDictionaryService.class.getSimpleName ();
 
+    //:// TODO: 19/08/16 need to check run in backgroud from gcm
     public DownloadCompleteDictionaryService () {
     }
 

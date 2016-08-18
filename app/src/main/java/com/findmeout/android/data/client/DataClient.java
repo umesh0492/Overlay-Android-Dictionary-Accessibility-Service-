@@ -133,12 +133,12 @@ public final class DataClient {
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.update (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
-                + DICTIONARY_WORD_LIST_ID), contentValues, DictionaryWords._ID+" =? ",new String[]{model.getWordId ()});
+                + DICTIONARY_WORD_LIST_ID), contentValues, DictionaryWords._ID + " =? ", new String[]{model.getWordId ()});
     }
 
     public static int deleteDictionaryWord (GcmModel model) {
         return contentResolver.delete (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
-                + DICTIONARY_WORD_LIST_ID), DictionaryWords._ID+" =? ",new String[]{model.getWordId ()});
+                + DICTIONARY_WORD_LIST_ID), DictionaryWords._ID + " =? ", new String[]{model.getWordId ()});
     }
 
     public static Uri insertDictionaryWordMeaning (DictionaryWordModel.Meaning model) {
@@ -177,14 +177,14 @@ public final class DataClient {
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.update (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI + "/"
-                + DICTIONARY_WORD_MEANING_LIST_ID), contentValues,DictionaryMeanings._ID+" =? ",new String[]{model.getMeaningId ()});
+                + DICTIONARY_WORD_MEANING_LIST_ID), contentValues, DictionaryMeanings._ID + " =? ", new String[]{model.getMeaningId ()});
 
     }
 
     public static int deleteDictionaryWordMeaning (GcmModel model) {
 
         return contentResolver.delete (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI + "/"
-                + DICTIONARY_WORD_MEANING_LIST_ID), DictionaryMeanings._ID+" =? ",new String[]{model.getMeaningId ()});
+                + DICTIONARY_WORD_MEANING_LIST_ID), DictionaryMeanings._ID + " =? ", new String[]{model.getMeaningId ()});
 
     }
 
@@ -208,17 +208,17 @@ public final class DataClient {
         contentValues.put (DictionaryMeaningCategories._ID, model.getCategoryId ());
         contentValues.put (DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME,
                 model.getCategoryName ());
-        contentValues.put (DictionaryMeaningCategories.COLUMN_NAME_UPDATED_ON, model.getUpdatedOn());
+        contentValues.put (DictionaryMeaningCategories.COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.update (Uri.parse (PREFIX + "/"
-                + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
-                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), contentValues,
-                DictionaryMeaningCategories._ID+" =? ", new String[]{model.getCategoryId ()});
+                        + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
+                        + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), contentValues,
+                DictionaryMeaningCategories._ID + " =? ", new String[]{model.getCategoryId ()});
     }
 
     public static int deleteDictionaryWordMeaningCategory (GcmModel model) {
         return contentResolver.delete (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
-                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), DictionaryMeaningCategories._ID+" =? ",new String[]{model.getCategoryId ()});
+                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), DictionaryMeaningCategories._ID + " =? ", new String[]{model.getCategoryId ()});
     }
 
  /*   public static int getAppCount () {
@@ -235,7 +235,7 @@ public final class DataClient {
         return count;
     }*/
 
-    //:// TODO: 31/07/16  need to implement category id with enum 
+    //:// TODO: 31/07/16  need to implement category id with enum
 
     public static ArrayList<DictionaryWordModel.Meaning> getWordMeaning (String word) {
 
@@ -250,7 +250,7 @@ public final class DataClient {
 
         DictionaryWordModel.Word wordModel = getWordDetail (word);
 
-        if(wordModel.getWordId ()!=null) {
+        if (wordModel.getWordId () != null) {
 
             ArrayList<DictionaryWordModel.Meaning> mWordMeanings = new ArrayList<> ();
 

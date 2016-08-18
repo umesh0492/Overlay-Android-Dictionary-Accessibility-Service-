@@ -4,23 +4,33 @@ package com.findmeout.android.gcm;
  * Created by umesh0492 on 12/03/16.
  */
 
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.findmeout.android.MainApplication;
+import com.findmeout.android.Preferences;
 import com.findmeout.android.R;
 import com.findmeout.android.data.client.DataClient;
 import com.findmeout.android.model.DictionaryWordModel;
 import com.findmeout.android.model.GcmModel;
+import com.findmeout.android.service.DownloadCompleteDictionaryService;
 import com.findmeout.android.ui.SettingsActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -71,17 +81,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private void actAccordingToTarget (GcmModel model) {
 
-        switch (model.getType ()){
+        switch (model.getType ()) {
 
             case 0:
 
-                //:// TODO: 17/08/16 check whether categories are there, else run download service
-                DictionaryWordModel.Category category = new DictionaryWordModel.Category ();
-                category.setCategoryID (model.getCategoryId ());
-                category.setCategoryName (model.getCategoryName ());
-                category.setUpdatedOn (model.getUpdatedOn ());
+                if (null == Preferences.getNextDownloadWordMeaningCategoryId ()) {
+                    DictionaryWordModel.Category category = new DictionaryWordModel.Category ();
+                    category.setCategoryID (model.getCategoryId ());
+                    category.setCategoryName (model.getCategoryName ());
+                    category.setUpdatedOn (model.getUpdatedOn ());
 
-                DataClient.insertDictionaryWordMeaningCategory (category);
+                    DataClient.insertDictionaryWordMeaningCategory (category);
+                }
+                else {
+                    startService (new Intent (MainApplication.context, DownloadCompleteDictionaryService.class));
+                }
+
                 break;
 
             case 1:
@@ -95,18 +110,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
 
             case 3:
-                //:// TODO: 17/08/16 check whether meanings are there  , else run download service
 
-                DictionaryWordModel.Meaning meaning = new DictionaryWordModel.Meaning ();
-                meaning.setCategoryId (model.getCategoryId ());
-                meaning.setMeaning (model.getMeaning ());
-                meaning.setMeaningId (model.getMeaningId ());
-                meaning.setMeaningUsage (model.getMeaningUsage ());
-                meaning.setWordId (model.getWordId ());
-                meaning.setUpdatedOn (model.getUpdatedOn ());
+                if (null == Preferences.getNextDownloadWordMeaningId ()) {
+                    DictionaryWordModel.Meaning meaning = new DictionaryWordModel.Meaning ();
+                    meaning.setCategoryId (model.getCategoryId ());
+                    meaning.setMeaning (model.getMeaning ());
+                    meaning.setMeaningId (model.getMeaningId ());
+                    meaning.setMeaningUsage (model.getMeaningUsage ());
+                    meaning.setWordId (model.getWordId ());
+                    meaning.setUpdatedOn (model.getUpdatedOn ());
 
-                DataClient.insertDictionaryWordMeaning(meaning);
-
+                    DataClient.insertDictionaryWordMeaning (meaning);
+                }
+                else {
+                    startService (new Intent (MainApplication.context, DownloadCompleteDictionaryService.class));
+                }
                 break;
 
             case 4:
@@ -120,17 +138,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
 
             case 6:
-                //:// TODO: 17/08/16 check whether words are there , else run download service
+                if (null == Preferences.getNextDownloadWordId ()) {
+                    DictionaryWordModel.Word word = new DictionaryWordModel.Word ();
+                    word.setWord (model.getWord ());
+                    word.setWordId (model.getWordId ());
+                    word.setPhonetic (model.getPhonetic ());
+                    word.setPhoneticSound (model.getPhoneticSound ());
+                    word.setUpdatedOn (model.getUpdatedOn ());
 
-                DictionaryWordModel.Word word = new DictionaryWordModel.Word ();
-                word.setWord (model.getWord ());
-                word.setWordId (model.getWordId ());
-                word.setPhonetic (model.getPhonetic ());
-                word.setPhoneticSound (model.getPhoneticSound ());
-                word.setUpdatedOn (model.getUpdatedOn ());
-
-                DataClient.insertDictionaryWord (word);
-
+                    DataClient.insertDictionaryWord (word);
+                }
+                else {
+                    startService (new Intent (MainApplication.context, DownloadCompleteDictionaryService.class));
+                }
                 break;
 
             case 7:
@@ -142,34 +162,62 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
                 break;
 
-            case 9: sendNotification (model);
+            case 9:
+                showSimpleNotification (model);
                 break;
         }
     }
     // [END receive_message]
 
 
-    private void sendNotification (GcmModel message) {
+    private void showSimpleNotification (GcmModel message) {
+
+        //:// TODO: 19/08/16 need to handle opens webview
         Intent intent = new Intent (this, SettingsActivity.class);
         intent.addFlags (Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity (this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
+        if(null != message.getUrl ()){
+            intent.putExtra ("url", message.getUrl ());
+        }
 
-        //:// TODO: 17/08/16 need to handle image and url
 
         Uri defaultSoundUri = RingtoneManager.getDefaultUri (RingtoneManager.TYPE_NOTIFICATION);
+
         NotificationCompat.Builder notificationBuilder = (NotificationCompat.Builder) new NotificationCompat.Builder (this)
                 .setSmallIcon (R.mipmap.ic_launcher)
+                .setLargeIcon (BitmapFactory.decodeResource
+                        (MainApplication.context.getResources (), R.mipmap.ic_launcher))
                 .setContentTitle (message.getTitle ())
                 .setContentText (message.getMessage ())
+                //.setTicker (message.getTicker())
                 .setAutoCancel (true)
                 .setSound (defaultSoundUri)
-                .setContentIntent (pendingIntent);
+                .setContentIntent (pendingIntent)
+                .setDefaults (Notification.DEFAULT_ALL);
 
-        NotificationManager notificationManager =
+        NotificationManager mNotifyMgr =
                 (NotificationManager) getSystemService (Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify (0 /* ID of notification */, notificationBuilder.build ());
+        String imageUrl = message.getImageUrl ();
+        if (!imageUrl.isEmpty ()) {
+            try {
+                Bitmap webImage = BitmapFactory
+                        .decodeStream ((InputStream) new URL (imageUrl).getContent ());
+                NotificationCompat.BigPictureStyle big = new NotificationCompat.BigPictureStyle (notificationBuilder);
+                big.bigPicture (webImage);
+                mNotifyMgr.notify (0, big.build ());
+
+            } catch (IOException e) {
+                e.printStackTrace ();
+            }
+        }
+        else {
+            NotificationCompat.BigTextStyle big = new NotificationCompat.BigTextStyle (notificationBuilder);
+            big.bigText (message.getMessage ());
+            mNotifyMgr.notify (0, big.build ());
+        }
+
     }
 }
 
