@@ -4,23 +4,23 @@ import com.findmeout.android.model.DictionaryWordModel;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
-import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 /**
  * Created by umesh0492 on 26/07/16.
  */
 public interface ApiInterface {
 
-   /* @GET("dictionary/meaning")
-    Call<DictionaryWordModel> getWordMeaning(@Query("word") String word);
-*/
-    @GET ("dictionary/words/{start_word_id}")
-    Call<DictionaryWordModel> getWords(@Path ("start_word_id") String id);
+    @GET("dictionary/meaning")
+    Call<DictionaryWordModel> getWordMeaning(@Query ("word") String word);
 
-    @GET ("dictionary/meanings/{start_meaning_id}")
-    Call<DictionaryWordModel> getWordMeanings(@Path ("start_meaning_id") String id);
+    @GET ("dictionary/words")
+    Call<DictionaryWordModel> getWords(@Query ("id") String nexId);
+
+    @GET ("dictionary/meanings")
+    Call<DictionaryWordModel> getWordMeanings(@Query ("id") String nexId);
 
     @GET ("dictionary/categories")
-    Call<DictionaryWordModel> getWordMeaningCategories();
+    Call<DictionaryWordModel> getWordMeaningCategories(@Query ("id") String nexId);
 
 }

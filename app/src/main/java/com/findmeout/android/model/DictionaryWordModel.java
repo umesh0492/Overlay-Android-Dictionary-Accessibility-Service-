@@ -19,10 +19,17 @@ public class DictionaryWordModel {
     @SerializedName ("categories")
     @Expose
     ArrayList<Category> categories;
-
-    @SerializedName ("next_id")
+    @SerializedName ("isNext")
     @Expose
-    String nextId;
+    boolean isNext;
+
+    public boolean getIsNext () {
+        return isNext;
+    }
+
+    public void setIsNext (boolean isNext) {
+        this.isNext = isNext;
+    }
 
     public ArrayList<Category> getCategories () {
         return categories;
@@ -40,14 +47,6 @@ public class DictionaryWordModel {
         this.meanings = meanings;
     }
 
-    public String getNextId () {
-        return nextId;
-    }
-
-    public void setNextId (String nextId) {
-        this.nextId = nextId;
-    }
-
 
     public ArrayList<Word> getWords () {
         return words;
@@ -59,7 +58,7 @@ public class DictionaryWordModel {
 
 
     public static class Word {
-        @SerializedName ("word_id")
+        @SerializedName ("id")
         @Expose
         String wordId;
         @SerializedName ("word")
@@ -71,7 +70,10 @@ public class DictionaryWordModel {
         @SerializedName ("phonetic_sound")
         @Expose
         String phoneticSound;
-        @SerializedName ("updated_on")
+        @SerializedName ("createdAt")
+        @Expose
+        String createdOn;
+        @SerializedName ("updatedAt")
         @Expose
         String updatedOn;
 
@@ -117,12 +119,15 @@ public class DictionaryWordModel {
     }
 
     public static class Category {
-        @SerializedName ("category_id")
+        @SerializedName ("id")
         @Expose
         String categoryID;
         @SerializedName ("category_name")
         @Expose
         String categoryName;
+        @SerializedName ("createdAt")
+        @Expose
+        String createdOn;
         @SerializedName ("updated_on")
         @Expose
         String updatedOn;
@@ -156,7 +161,7 @@ public class DictionaryWordModel {
         @SerializedName ("word_id")
         @Expose
         String wordId;
-        @SerializedName ("meaning_id")
+        @SerializedName ("id")
         @Expose
         String meaningId;
         @SerializedName ("meaning")
@@ -168,6 +173,9 @@ public class DictionaryWordModel {
         @SerializedName ("category_id")
         @Expose
         String categoryId;
+        @SerializedName ("createdAt")
+        @Expose
+        String createdOn;
         @SerializedName ("updated_on")
         @Expose
         String updatedOn;

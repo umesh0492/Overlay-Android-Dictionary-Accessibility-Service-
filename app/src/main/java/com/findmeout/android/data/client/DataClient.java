@@ -101,7 +101,7 @@ public final class DataClient {
                 + APP_LIST_ID), contentValues);
     }
 
-    public static Uri insertDictionaryWord (DictionaryWordModel.Word model) {
+    public static String insertDictionaryWord (DictionaryWordModel.Word model) {
 
         ContentValues contentValues = new ContentValues ();
 
@@ -116,7 +116,7 @@ public final class DataClient {
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
-                + DICTIONARY_WORD_LIST_ID), contentValues);
+                + DICTIONARY_WORD_LIST_ID), contentValues).getLastPathSegment ();
     }
 
     public static int updateDictionaryWord (GcmModel model) {
@@ -141,7 +141,7 @@ public final class DataClient {
                 + DICTIONARY_WORD_LIST_ID), DictionaryWords._ID + " =? ", new String[]{model.getWordId ()});
     }
 
-    public static Uri insertDictionaryWordMeaning (DictionaryWordModel.Meaning model) {
+    public static String insertDictionaryWordMeaning (DictionaryWordModel.Meaning model) {
 
         ContentValues contentValues = new ContentValues ();
 
@@ -158,7 +158,7 @@ public final class DataClient {
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI + "/"
-                + DICTIONARY_WORD_MEANING_LIST_ID), contentValues);
+                + DICTIONARY_WORD_MEANING_LIST_ID), contentValues).getLastPathSegment ();
     }
 
     public static int updateDictionaryWordMeaning (GcmModel model) {
