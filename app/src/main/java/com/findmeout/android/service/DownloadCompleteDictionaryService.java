@@ -6,15 +6,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.findmeout.android.MainApplication;
 import com.findmeout.android.Preferences;
 import com.findmeout.android.R;
 import com.findmeout.android.data.client.DataClient;
 import com.findmeout.android.model.DictionaryWordModel;
-import com.findmeout.android.network.ApiClient;
-import com.findmeout.android.network.ApiInterface;
 
 import java.util.ArrayList;
 
@@ -33,20 +33,29 @@ public class DownloadCompleteDictionaryService extends Service {
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
 
-        if (null != Preferences.getNextDownloadWordMeaningCategoryId ()) {
-            requestCategories ();
-        }
-        else if (null != Preferences.getNextDownloadWordId ()) {
-            requestWords ();
-        }
-        else if (null != Preferences.getNextDownloadWordMeaningId ()) {
-            requestMeanings ();
+        if (!intent.hasExtra ("close")) {
+            if (!"-1".equals (Preferences.getNextDownloadWordMeaningCategoryId ())) {
+                requestCategories ();
+            }
+            else if (!"-1".equals (Preferences.getNextDownloadWordId ())) {
+                showNotification (5);
+                requestWords ();
+            }
+            else if (!"-1".equals (Preferences.getNextDownloadWordMeaningId ())) {
+                showNotification (45);
+                requestMeanings ();
+            }
+            else {
+                //stopSelf ();
+                return START_NOT_STICKY;
+            }
+            return START_STICKY;
         }
         else {
-            //stopSelf ();
+            stopSelf ();
             return START_NOT_STICKY;
         }
-        return START_STICKY;
+
     }
 
     @Nullable
@@ -58,23 +67,24 @@ public class DownloadCompleteDictionaryService extends Service {
     void requestCategories () {
 
         showNotification (0);
-        ApiInterface apiService =
-                ApiClient.getClient ().create (ApiInterface.class);
 
-        Call<DictionaryWordModel> call = apiService.getWordMeaningCategories ("0");
+        Call<DictionaryWordModel> call = MainApplication.apiService.getWordMeaningCategories ("0");
         call.enqueue (new Callback<DictionaryWordModel> () {
             @Override
             public void onResponse (Call<DictionaryWordModel> call,
                                     Response<DictionaryWordModel> response) {
                 insertWordMeaningCategoryResultInDB (response.body ().getCategories ());
-                Preferences.setNextDownloadWordMeaningCategoryId (null);
+                Preferences.setNextDownloadWordMeaningCategoryId ("-1");
                 requestWords ();
+
             }
 
             @Override
             public void onFailure (Call<DictionaryWordModel> call, Throwable t) {
                 // Log error here since request failed
                 Log.e (TAG, t.toString ());
+
+                //:// TODO: 20/09/16 handle no internet connection
             }
         });
     }
@@ -84,46 +94,54 @@ public class DownloadCompleteDictionaryService extends Service {
         String nextId = Preferences.getNextDownloadWordId ();
         int nextIntID = Integer.parseInt (nextId);
         if (nextIntID < 1000) {
-            showNotification (1);
-        }
-        else if (nextIntID < 5000) {
-            showNotification (2);
-        }
-        else if (nextIntID < 10000) {
             showNotification (5);
         }
-        else if (nextIntID < 20000) {
+        else if (nextIntID < 5000) {
             showNotification (10);
         }
-        else if (nextIntID < 40000) {
+        else if (nextIntID < 10000) {
             showNotification (15);
         }
-        else if (nextIntID < 60000) {
+        else if (nextIntID < 20000) {
             showNotification (20);
         }
-        else if (nextIntID < 80000) {
-            showNotification (22);
-        }
-        else if (nextIntID < 100000) {
+        else if (nextIntID < 40000) {
             showNotification (25);
         }
+        else if (nextIntID < 60000) {
+            showNotification (30);
+        }
+        else if (nextIntID < 80000) {
+            showNotification (35);
+        }
+        else if (nextIntID < 100000) {
+            showNotification (40);
+        }
 
-
-        Call<DictionaryWordModel> call = ApiClient.getClient ().create (ApiInterface.class)
-                .getWords (nextId);
+        Call<DictionaryWordModel> call = MainApplication.apiService.getWords (nextId);
 
         call.enqueue (new Callback<DictionaryWordModel> () {
             @Override
             public void onResponse (Call<DictionaryWordModel> call,
                                     Response<DictionaryWordModel> response) {
+
+                String nextId = insertWordResultInDB (response.body ().getWords ());
+
+                if(!nextId.equals ("0")){
+                    Preferences.setNextDownloadWordId (nextId);
+                }
+                else{
+                    response.body ().setIsNext (false);
+                    Preferences.setNextDownloadWordId ("-1");
+                }
+
+
                 if (response.body ().getIsNext ()) {
-                    Preferences.setNextDownloadWordId
-                            (insertWordResultInDB (response.body ().getWords ()));
                     requestWords ();
                 }
                 else {
-                    Preferences.setNextDownloadWordId (null);
-                    showNotification (30);
+                    Preferences.setNextDownloadWordId ("-1");
+                    showNotification (45);
                     requestMeanings ();
                 }
             }
@@ -140,77 +158,49 @@ public class DownloadCompleteDictionaryService extends Service {
 
         String nextId = Preferences.getNextDownloadWordMeaningId ();
         int nextIntID = Integer.parseInt (nextId);
-        if (nextIntID < 1000) {
-            showNotification (31);
-        }
-        else if (nextIntID < 5000) {
-            showNotification (32);
-        }
-        else if (nextIntID < 10000) {
-            showNotification (34);
-        }
-        else if (nextIntID < 20000) {
-            showNotification (37);
+        if (nextIntID < 10000) {
+            showNotification (50);
         }
         else if (nextIntID < 40000) {
-            showNotification (40);
+            showNotification (60);
         }
         else if (nextIntID < 60000) {
-            showNotification (44);
-        }
-        else if (nextIntID < 80000) {
-            showNotification (48);
-        }
-        else if (nextIntID < 100000) {
-            showNotification (53);
-        }
-        else if (nextIntID > 130000) {
-            showNotification (58);
-        }
-        else if (nextIntID > 130000) {
-            showNotification (58);
-        }
-        else if (nextIntID > 160000) {
-            showNotification (62);
-        }
-        else if (nextIntID > 180000) {
-            showNotification (58);
-        }
-        else if (nextIntID > 240000) {
-            showNotification (65);
-        }
-        else if (nextIntID > 300000) {
             showNotification (70);
         }
-        else if (nextIntID > 400000) {
-            showNotification (75);
+        else if (nextIntID < 80000) {
+            showNotification (80);
         }
-        else if (nextIntID > 500000) {
-            showNotification (78);
-        }
-        else if (nextIntID > 700000) {
-            showNotification (85);
-        }
-        else if (nextIntID > 900000) {
+        else if (nextIntID < 100000) {
             showNotification (90);
         }
-        else if (nextIntID > 1000000) {
+        else if (nextIntID > 120000) {
             showNotification (95);
         }
+        else if (nextIntID > 140000) {
+            showNotification (99);
+        }
 
-        Call<DictionaryWordModel> call = ApiClient.getClient ().create (ApiInterface.class)
-                .getWordMeanings (nextId);
+        Call<DictionaryWordModel> call = MainApplication.apiService.getWordMeanings (nextId);
+
         call.enqueue (new Callback<DictionaryWordModel> () {
             @Override
             public void onResponse (Call<DictionaryWordModel> call, Response<DictionaryWordModel> response) {
 
+                String nextId = insertWordMeaningResultInDB (response.body ().getMeanings ());
+
+                if(!nextId.equals ("0")){
+                    Preferences.setNextDownloadWordMeaningId (nextId);
+                }
+                else{
+                    response.body ().setIsNext (false);
+                    Preferences.setNextDownloadWordMeaningId ("-1");
+                }
+
                 if (response.body ().getIsNext ()) {
-                    Preferences.setNextDownloadWordMeaningId
-                            (insertWordMeaningResultInDB (response.body ().getMeanings ()));
-                    requestMeanings ();
+                     requestMeanings ();
                 }
                 else {
-                    Preferences.setNextDownloadWordMeaningId (null);
+                    Preferences.setNextDownloadWordMeaningId ("-1");
                     showNotification (100);
                     stopSelf ();
                 }
@@ -225,11 +215,14 @@ public class DownloadCompleteDictionaryService extends Service {
     }
 
 
-    private void insertWordMeaningCategoryResultInDB (ArrayList<DictionaryWordModel.Category> wordMeaningCategories) {
-
+    private String insertWordMeaningCategoryResultInDB (ArrayList<DictionaryWordModel.Category> wordMeaningCategories) {
+        String lastInsetId = null;
         for (DictionaryWordModel.Category wordMeaningCategory : wordMeaningCategories) {
-            DataClient.insertDictionaryWordMeaningCategory (wordMeaningCategory);
+            Log.d ("cat id", wordMeaningCategory.getCategoryID () + "");
+            lastInsetId = DataClient.insertDictionaryWordMeaningCategory (wordMeaningCategory);
         }
+        return lastInsetId;
+
     }
 
     private String insertWordMeaningResultInDB (ArrayList<DictionaryWordModel.Meaning> wordMeanings) {
@@ -256,14 +249,22 @@ public class DownloadCompleteDictionaryService extends Service {
     void showNotification (int progress) {
         final int id = 1;
 
+        Intent intent = new Intent ("download_dictionary_intent");
+        // You can also include some extra data.
+        intent.putExtra ("progress", progress);
+        LocalBroadcastManager.getInstance (this).sendBroadcast (intent);
+
         NotificationManager mNotifyManager =
                 (NotificationManager) getSystemService (Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder (this);
         mBuilder.setContentTitle ("Downloading Dictionary")
                 .setContentText ("Download in progress")
-                .setSmallIcon (R.mipmap.ic_launcher);
+                .setSmallIcon (R.mipmap.ic_launcher)
+                .setContentInfo (progress + "%");
 
         if (progress != 100) {
+            mBuilder.setAutoCancel (false);
+            mBuilder.setOngoing (true);
             mBuilder.setProgress (100, progress, false);
             // Displays the progress bar for the first time.
             mNotifyManager.notify (id, mBuilder.build ());
@@ -308,4 +309,9 @@ public class DownloadCompleteDictionaryService extends Service {
         ).start();*/
     }
 
+    @Override
+    public void onDestroy () {
+        super.onDestroy ();
+
+    }
 }

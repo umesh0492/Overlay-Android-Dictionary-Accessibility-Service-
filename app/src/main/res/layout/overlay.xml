@@ -36,6 +36,7 @@
         android:layout_toLeftOf="@id/close"
         android:layout_below="@id/word"
         android:text="Verb"
+        android:visibility="gone"
         android:textColor="@android:color/white"
         android:textSize="11sp"/>
 

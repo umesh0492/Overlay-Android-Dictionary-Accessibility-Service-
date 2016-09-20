@@ -3,10 +3,9 @@ package com.findmeout.android;
 import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDex;
-import android.util.Log;
 
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.findmeout.android.network.ApiClient;
+import com.findmeout.android.network.ApiInterface;
 
 /**
  * Created by umesh0492 on 19/08/15.
@@ -17,17 +16,23 @@ public class MainApplication extends Application {
 
     public static Context context;
 
+    public static ApiInterface apiService;
+
     @Override
     public void onCreate () {
         super.onCreate ();
         context = getApplicationContext ();
-
-        // [START subscribe_topics]
+        com.facebook.stetho.Stetho.initializeWithDefaults (this);
+        apiService = ApiClient.getClient ().create (ApiInterface.class);
+      /*  // [START subscribe_topics]
         FirebaseMessaging.getInstance ().subscribeToTopic ("news");
         Log.d (TAG, "Subscribed to news topic");
         Log.d (TAG, "InstanceID token: " + FirebaseInstanceId.getInstance ().getToken ());
-
+*/
         //DataClient.insertInitApp ();
+
+        //:// TODO: 21/09/16 DB backup
+
 
     }
 

@@ -91,15 +91,6 @@ public class Preferences {
         return getSharedPref (MainApplication.context).getBoolean (REGISTRATION_DONE, false);
     }
 
-    public static void setAccessibilityPermission (boolean permission) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
-        edit.putBoolean (ACCESSIBILITY_PERMISSION, permission);
-        edit.commit ();
-    }
-
-    public static boolean hasAccessibilityPermission () {
-        return getSharedPref (MainApplication.context).getBoolean (ACCESSIBILITY_PERMISSION, false);
-    }
 
     public static String getNextDownloadWordId () {
         return getSharedPref (MainApplication.context).getString (NEXT_DOWNLOAD_WORD_ID, "0");

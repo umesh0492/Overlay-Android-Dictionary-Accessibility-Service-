@@ -4,6 +4,7 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
 
 import com.findmeout.android.MainApplication;
 import com.findmeout.android.data.provider.DataContract;
@@ -106,14 +107,10 @@ public final class DataClient {
         ContentValues contentValues = new ContentValues ();
 
         contentValues.put (DictionaryWords._ID, model.getWordId ());
-        contentValues.put (DictionaryWords.COLUMN_NAME_WORD,
-                model.getWord ());
-        contentValues.put (DictionaryWords
-                .COLUMN_NAME_PHONETIC, model.getPhonetic ());
-        contentValues.put (DictionaryWords
-                .COLUMN_NAME_PHONETIC_SOUND, model.getPhoneticSound ());
-        contentValues.put (DictionaryWords
-                .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
+        contentValues.put (DictionaryWords.COLUMN_NAME_WORD, model.getWord ());
+        contentValues.put (DictionaryWords.COLUMN_NAME_PHONETIC, model.getPhonetic ());
+        contentValues.put (DictionaryWords.COLUMN_NAME_PHONETIC_SOUND, model.getPhoneticSound ());
+        contentValues.put (DictionaryWords.COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
                 + DICTIONARY_WORD_LIST_ID), contentValues).getLastPathSegment ();
@@ -133,7 +130,8 @@ public final class DataClient {
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.update (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_URI + "/"
-                + DICTIONARY_WORD_LIST_ID), contentValues, DictionaryWords._ID + " =? ", new String[]{model.getWordId ()});
+                + DICTIONARY_WORD_LIST_ID), contentValues, DictionaryWords._ID + " =? ",
+                new String[]{model.getWordId ()});
     }
 
     public static int deleteDictionaryWord (GcmModel model) {
@@ -188,7 +186,7 @@ public final class DataClient {
 
     }
 
-    public static Uri insertDictionaryWordMeaningCategory (DictionaryWordModel.Category model) {
+    public static String insertDictionaryWordMeaningCategory (DictionaryWordModel.Category model) {
 
         ContentValues contentValues = new ContentValues ();
 
@@ -199,7 +197,7 @@ public final class DataClient {
                 .COLUMN_NAME_UPDATED_ON, model.getUpdatedOn ());
 
         return contentResolver.insert (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
-                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), contentValues);
+                + DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID), contentValues).getLastPathSegment ();
     }
 
     public static int updateDictionaryWordMeaningCategory (GcmModel model) {
@@ -245,7 +243,6 @@ public final class DataClient {
                 DictionaryMeanings.COLUMN_NAME_MEANING_USAGE,
                 DictionaryMeanings.COLUMN_NAME_CATEGORY_ID
 
-
         };
 
         DictionaryWordModel.Word wordModel = getWordDetail (word);
@@ -253,17 +250,18 @@ public final class DataClient {
         if (wordModel.getWordId () != null) {
 
             ArrayList<DictionaryWordModel.Meaning> mWordMeanings = new ArrayList<> ();
+            Log.e ("Word : "+word,"found with id : " + wordModel.getWordId ());
 
 
             Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_URI),
-                    columnsMeaning, DictionaryMeanings.COLUMN_NAME_WORD_ID + " = ? ", new String[]{wordModel.getWordId ()}, null);
+                    columnsMeaning, DictionaryMeanings.COLUMN_NAME_WORD_ID + " = ? ",
+                    new String[]{wordModel.getWordId ()}, null);
 
             assert cursor != null;
-            //if (cursor.getCount () > 0)
+            if (cursor.moveToFirst ())
             {
-                cursor.moveToFirst ();
-                while (cursor.moveToNext ()) {
-
+                //while (cursor.moveToNext ())
+                {
                     DictionaryWordModel.Meaning mWordMeaning = new DictionaryWordModel.Meaning ();
 
                     mWordMeaning.setMeaningId (cursor.getString (cursor.getColumnIndexOrThrow (
@@ -278,20 +276,27 @@ public final class DataClient {
                     mWordMeanings.add (mWordMeaning);
                 }
             }
+            else {
+                mWordMeanings = null;
+            }
             cursor.close ();
             return mWordMeanings;
 
+        }
+        else {
+            Log.e ("Word : "+word,"not found");
         }
 
         return null;
     }
 
-    private static DictionaryWordModel.Word getWordDetail (String word) {
+    private static DictionaryWordModel.Word getWordDetail ( String word) {
 
         String[] columnsWord = {
                 DictionaryWords._ID,
                 DictionaryWords.COLUMN_NAME_PHONETIC,
-                DictionaryWords.COLUMN_NAME_PHONETIC_SOUND
+                DictionaryWords.COLUMN_NAME_PHONETIC_SOUND,
+                DictionaryWords.COLUMN_NAME_WORD
         };
 
         DictionaryWordModel.Word wordModel = new DictionaryWordModel.Word ();
@@ -300,7 +305,8 @@ public final class DataClient {
                 columnsWord, DictionaryWords.COLUMN_NAME_WORD + " = ? ", new String[]{word}, null);
 
         assert cursor != null;
-        if (cursor.moveToFirst ()) {
+        if (cursor.moveToFirst ())
+        {
             wordModel.setWordId (cursor.getString (cursor.getColumnIndexOrThrow (
                     DictionaryWords._ID)));
             wordModel.setPhonetic (cursor.getString (cursor.getColumnIndexOrThrow (
@@ -313,9 +319,23 @@ public final class DataClient {
         return wordModel;
     }
 
+    public static String getCategoryName (String categoryId) {
 
+        String[] columnsCategory = {DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME};
 
+        Cursor cursor = contentResolver.query (Uri.parse (PREFIX + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI),
+                columnsCategory, DictionaryMeaningCategories._ID + " = ? ", new String[]{categoryId}, null);
 
+        String categoryName = null;
+        assert cursor != null;
+        if (cursor.moveToFirst ()) {
+            categoryName = cursor.getString (cursor.getColumnIndexOrThrow (
+                    DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME));
+        }
+        cursor.close ();
+
+        return categoryName;
+    }
 
 
    /* public static void updateAppActivieStatus (String appPackage, boolean isActive) {

@@ -16,6 +16,8 @@ import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.findmeout.android.MainApplication;
 import com.findmeout.android.Preferences;
 import com.findmeout.android.R;
@@ -23,10 +25,9 @@ import com.findmeout.android.data.client.DataClient;
 import com.findmeout.android.model.DictionaryWordModel;
 import com.findmeout.android.model.GcmModel;
 import com.findmeout.android.service.DownloadCompleteDictionaryService;
-import com.findmeout.android.ui.SettingsActivity;
+import com.findmeout.android.ui.MainActivity;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.Gson;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,8 +61,16 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         // Check if message contains a data payload.
 
+        GcmModel model = null;
         if (remoteMessage.getData ().size () > 0) {
-            GcmModel model = new Gson ().fromJson (remoteMessage.getData ().get ("data"), GcmModel.class);
+            ObjectReader obj = new ObjectMapper ().readerFor (GcmModel.class);
+
+            try {
+                model = obj.readValue (remoteMessage.getData ().get ("data"));
+            } catch (IOException e) {
+                e.printStackTrace ();
+            }
+
             if (null != model) {
 
                 actAccordingToTarget (model);
@@ -173,7 +182,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void showSimpleNotification (GcmModel message) {
 
         //:// TODO: 19/08/16 need to handle opens webview
-        Intent intent = new Intent (this, SettingsActivity.class);
+        Intent intent = new Intent (this, MainActivity.class);
         intent.addFlags (Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity (this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);

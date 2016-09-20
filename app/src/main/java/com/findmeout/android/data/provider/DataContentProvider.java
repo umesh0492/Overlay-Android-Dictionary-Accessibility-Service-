@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.findmeout.android.Preferences;
 import com.findmeout.android.data.provider.sql.DbHelper;
 
 import java.util.List;
@@ -69,53 +70,39 @@ public class DataContentProvider extends ContentProvider {
         switch (uriMatcher.match (uri)) {
 
             case APP_LIST_ID:
-                return db.query (true, DataContract.AppList.TABLE_NAME, columns, selection,
+                return db.query (DataContract.AppList.TABLE_NAME, columns, selection,
                         selectionArgs, null,
                         null, DataContract.AppList.COLUMN_NAME_APP_PACKAGE + " ASC",
                         "1");
 
             case APP_LIST:
-                return db.query (true, DataContract.AppList.TABLE_NAME, columns, selection,
-                        selectionArgs, null,
-                        null, DataContract.AppList.COLUMN_NAME_APP_PACKAGE + " ASC",
-                        "1000");
+                return db.query (DataContract.AppList.TABLE_NAME, columns, selection,
+                        selectionArgs, null, null, null);
 
-            case DICTIONARY_WORD_LIST_ID:
-                return db.query (true, DataContract.DictionaryWords.TABLE_NAME, columns, selection,
-                        selectionArgs, null,
-                        null, DataContract.DictionaryWords._ID + " ASC",
-                        "1");
-
+            /*case DICTIONARY_WORD_LIST_ID:
+                return db.query (DataContract.DictionaryWords.TABLE_NAME, columns, selection,
+                        selectionArgs, null, null, null);
+*/
             case DICTIONARY_WORD_LIST:
-                return db.query (true, DataContract.DictionaryWords.TABLE_NAME, columns, selection,
-                        selectionArgs, null,
-                        null, DataContract.DictionaryWords._ID + " ASC",
-                        "100");
+                return db.query (DataContract.DictionaryWords.TABLE_NAME, columns, selection,
+                        selectionArgs, null, null,null);
 
             case DICTIONARY_WORD_MEANING_LIST_ID:
-                return db.query (true, DataContract.DictionaryMeanings.TABLE_NAME, columns, selection,
-                        selectionArgs, null,
-                        null, DataContract.DictionaryMeanings._ID + " ASC",
-                        "1");
+                return db.query (DataContract.DictionaryMeanings.TABLE_NAME, columns, selection,
+                        selectionArgs, null, null, null);
 
             case DICTIONARY_WORD_MEANING_LIST:
-                return db.query (true, DataContract.DictionaryMeanings.TABLE_NAME, columns, selection,
-                        selectionArgs, null,
-                        null, DataContract.DictionaryMeanings._ID + " ASC",
-                        "100");
+                return db.query (DataContract.DictionaryMeanings.TABLE_NAME, columns, selection,
+                        selectionArgs, null, null, null);
 
             case DICTIONARY_WORD_MEANING_CATEGORY_LIST_ID:
-                return db.query (true, DataContract.DictionaryMeaningCategories.TABLE_NAME, columns, selection,
+                return db.query (DataContract.DictionaryMeaningCategories.TABLE_NAME, columns, selection,
                         selectionArgs, null,
-                        null, DataContract.DictionaryMeaningCategories._ID + " ASC",
-                        "1");
+                        null, null);
 
             case DICTIONARY_WORD_MEANING_CATEGORY_LIST:
-                return db.query (true, DataContract.DictionaryMeaningCategories.TABLE_NAME, columns, selection,
-                        selectionArgs, null,
-                        null, DataContract.DictionaryMeaningCategories._ID + " ASC",
-                        "100");
-
+                return db.query (DataContract.DictionaryMeaningCategories.TABLE_NAME, columns, selection,
+                        selectionArgs, null, null, null);
 
             default:
                 throw new RuntimeException ("No content provider URI match.");
@@ -169,7 +156,7 @@ public class DataContentProvider extends ContentProvider {
         List<String> segments;
         segments = uri.getPathSegments ();
         assert segments != null;
-        long insert_id = -1;
+        long insert_id ;
         SQLiteDatabase db = dbHelper.getWritableDatabase ();
 
         switch (uriMatcher.match (uri)) {
@@ -178,7 +165,7 @@ public class DataContentProvider extends ContentProvider {
                     insert_id = db.insertOrThrow (DataContract.AppList.TABLE_NAME,
                             null, contentValues);
                 } catch (SQLException ignored) {
-
+                    insert_id = Long.parseLong (Preferences.getNextDownloadWordMeaningCategoryId ());
                 }
                 return Uri.parse ("content://" + AUTHORITY + "/" + APP_URI + "/"
                         + insert_id);
@@ -188,7 +175,7 @@ public class DataContentProvider extends ContentProvider {
                     insert_id = db.insertOrThrow (DataContract.DictionaryWords.TABLE_NAME,
                             null, contentValues);
                 } catch (SQLException ignored) {
-
+                    insert_id = Long.parseLong (Preferences.getNextDownloadWordId ());
                 }
                 return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_WORD_URI + "/"
                         + insert_id);
@@ -198,7 +185,7 @@ public class DataContentProvider extends ContentProvider {
                     insert_id = db.insertOrThrow (DataContract.DictionaryMeanings.TABLE_NAME,
                             null, contentValues);
                 } catch (SQLException ignored) {
-
+                    insert_id = Long.parseLong (Preferences.getNextDownloadWordMeaningId ());
                 }
                 return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_WORD_MEANING_URI + "/"
                         + insert_id);
@@ -208,7 +195,7 @@ public class DataContentProvider extends ContentProvider {
                     insert_id = db.insertOrThrow (DataContract.DictionaryMeaningCategories.TABLE_NAME,
                             null, contentValues);
                 } catch (SQLException ignored) {
-
+                    insert_id = Long.parseLong (Preferences.getNextDownloadWordMeaningCategoryId ());
                 }
                 return Uri.parse ("content://" + AUTHORITY + "/" + DICTIONARY_WORD_MEANING_CATEGORY_URI + "/"
                         + insert_id);

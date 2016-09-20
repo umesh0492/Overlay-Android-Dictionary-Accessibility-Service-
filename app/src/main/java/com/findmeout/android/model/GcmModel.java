@@ -1,15 +1,14 @@
 package com.findmeout.android.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Created by umesh0492 on 23/07/16.
  */
 public class GcmModel {
 
-    @SerializedName ("type")
-    @Expose
+    @JsonProperty ("type")
+
     short type;
     /**
      0--> Insert Category
@@ -28,60 +27,60 @@ public class GcmModel {
      **/
 
 
-    @SerializedName ("category_id")
-    @Expose
+    @JsonProperty ("category_id")
+
     String categoryId;
 
-    @SerializedName ("category_name")
-    @Expose
+    @JsonProperty ("category_name")
+
     String categoryName;
 
-    @SerializedName ("meaning_id")
-    @Expose
+    @JsonProperty ("meaning_id")
+
     String meaningId;
 
-    @SerializedName ("meaning")
-    @Expose
+    @JsonProperty ("meaning")
+
     String meaning;
 
-    @SerializedName ("meaning_usage")
-    @Expose
+    @JsonProperty ("meaning_usage")
+
     String meaningUsage;
 
-    @SerializedName ("word_id")
-    @Expose
+    @JsonProperty ("word_id")
+
     String wordId;
 
-    @SerializedName ("word")
-    @Expose
+    @JsonProperty ("word")
+
     String word;
 
-    @SerializedName ("phonetic")
-    @Expose
+    @JsonProperty ("phonetic")
+
     String phonetic;
 
-    @SerializedName ("phonetic_sound")
-    @Expose
+    @JsonProperty ("phonetic_sound")
+
     String phoneticSound;
 
-    @SerializedName ("title")
-    @Expose
+    @JsonProperty ("title")
+
     String title;
 
-    @SerializedName ("message")
-    @Expose
+    @JsonProperty ("message")
+
     String message;
 
-    @SerializedName ("image_url")
-    @Expose
+    @JsonProperty ("image_url")
+
     String imageUrl;
 
-    @SerializedName ("url")
-    @Expose
+    @JsonProperty ("url")
+
     String url;
 
-    @SerializedName ("updated_on")
-    @Expose
+    @JsonProperty ("updated_on")
+
     String updatedOn;
 
     public String getUpdatedOn () {

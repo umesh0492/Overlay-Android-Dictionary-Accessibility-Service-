@@ -1,7 +1,7 @@
 package com.findmeout.android.model;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 
@@ -10,17 +10,13 @@ import java.util.ArrayList;
  */
 public class DictionaryWordModel {
 
-    @SerializedName ("words")
-    @Expose
+    @JsonProperty ("words")
     ArrayList<Word> words;
-    @SerializedName ("meanings")
-    @Expose
+    @JsonProperty ("meanings")
     ArrayList<Meaning> meanings;
-    @SerializedName ("categories")
-    @Expose
+    @JsonProperty ("categories")
     ArrayList<Category> categories;
-    @SerializedName ("isNext")
-    @Expose
+    @JsonProperty ("isNext")
     boolean isNext;
 
     public boolean getIsNext () {
@@ -58,23 +54,23 @@ public class DictionaryWordModel {
 
 
     public static class Word {
-        @SerializedName ("id")
-        @Expose
+        @JsonProperty ("id")
+
         String wordId;
-        @SerializedName ("word")
-        @Expose
+        @JsonProperty ("word")
+
         String word;
-        @SerializedName ("phonetic")
-        @Expose
+       @JsonProperty ("phonetic")
+
         String phonetic;
-        @SerializedName ("phonetic_sound")
-        @Expose
+       @JsonProperty ("phonetic_sound")
+
         String phoneticSound;
-        @SerializedName ("createdAt")
-        @Expose
+       @JsonProperty ("createdAt")
+
         String createdOn;
-        @SerializedName ("updatedAt")
-        @Expose
+       @JsonProperty ("updatedAt")
+
         String updatedOn;
 
         public String getUpdatedOn () {
@@ -119,17 +115,17 @@ public class DictionaryWordModel {
     }
 
     public static class Category {
-        @SerializedName ("id")
-        @Expose
+       @JsonProperty ("id")
+
         String categoryID;
-        @SerializedName ("category_name")
-        @Expose
+       @JsonProperty ("category_name")
+
         String categoryName;
-        @SerializedName ("createdAt")
-        @Expose
+       @JsonProperty ("createdAt")
+
         String createdOn;
-        @SerializedName ("updated_on")
-        @Expose
+       @JsonProperty ("updatedAt")
+
         String updatedOn;
 
         public String getCategoryID () {
@@ -158,26 +154,25 @@ public class DictionaryWordModel {
     }
 
     public static class Meaning {
-        @SerializedName ("word_id")
-        @Expose
+       @JsonProperty ("word_id")
         String wordId;
-        @SerializedName ("id")
-        @Expose
+       @JsonProperty ("id")
+
         String meaningId;
-        @SerializedName ("meaning")
-        @Expose
+       @JsonProperty ("meaning")
+
         String meaning;
-        @SerializedName ("meaning_usage")
-        @Expose
+       @JsonProperty ("meaning_usage")
+
         String meaningUsage;
-        @SerializedName ("category_id")
-        @Expose
+       @JsonProperty ("category_id")
+
         String categoryId;
-        @SerializedName ("createdAt")
-        @Expose
+       @JsonProperty ("createdAt")
+
         String createdOn;
-        @SerializedName ("updated_on")
-        @Expose
+       @JsonProperty ("updatedAt")
+
         String updatedOn;
 
         public String getUpdatedOn () {

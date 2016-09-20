@@ -36,6 +36,8 @@ public final class SQLDDL {
                 sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.AppList.COLUMN_NAME_IS_ACTIVE,
                 sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.AppList.COLUMN_NAME_CREATED_ON,
+                sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.AppList.COLUMN_NAME_UPDATED_ON,
                 sqlHelper.getSQLTypeString ()));
 
@@ -53,6 +55,8 @@ public final class SQLDDL {
         columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_PHONETIC,
                 sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_PHONETIC_SOUND,
+                sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_CREATED_ON,
                 sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.DictionaryWords.COLUMN_NAME_UPDATED_ON,
                 sqlHelper.getSQLTypeString ()));
@@ -74,6 +78,8 @@ public final class SQLDDL {
                 sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_CATEGORY_ID,
                 sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_CREATED_ON,
+                sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.DictionaryMeanings.COLUMN_NAME_UPDATED_ON,
                 sqlHelper.getSQLTypeString ()));
 
@@ -88,11 +94,12 @@ public final class SQLDDL {
                 sqlHelper.getSQLTypeInteger (), true));
         columns.add (new SQLColumn (DataContract.DictionaryMeaningCategories.COLUMN_NAME_CATEGORY_NAME,
                 sqlHelper.getSQLTypeString ()));
+        columns.add (new SQLColumn (DataContract.DictionaryMeaningCategories.COLUMN_NAME_CREATED_ON,
+                sqlHelper.getSQLTypeString ()));
         columns.add (new SQLColumn (DataContract.DictionaryMeaningCategories.COLUMN_NAME_UPDATED_ON,
                 sqlHelper.getSQLTypeString ()));
 
         return sqlHelper.getTableCreateDDL (DataContract.DictionaryMeaningCategories.TABLE_NAME, columns);
     }
-
 
 }

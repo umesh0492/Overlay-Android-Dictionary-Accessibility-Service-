@@ -21,11 +21,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.findmeout.android.MainApplication;
 import com.findmeout.android.R;
 import com.findmeout.android.data.client.DataClient;
 import com.findmeout.android.model.DictionaryWordModel;
 
 import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ChatHeadService extends Service {
     private static final String TAG = "ChatHeadService";
@@ -42,10 +47,10 @@ public class ChatHeadService extends Service {
     TextView tvWord;
     TextView tvWordType;
     TextView tvMeaning;
-
-
     String sentence = "";
     String word = "";
+
+    boolean requestingServer = false;
 
     @Override
     public void onCreate () {
@@ -106,7 +111,7 @@ public class ChatHeadService extends Service {
 
             @Override
             public boolean onTouch (View v, MotionEvent event) {
-                Log.e (TAG,event.getAction ()+"");
+                Log.e (TAG, event.getAction () + "");
                 switch (event.getAction ()) {
                     case MotionEvent.ACTION_DOWN:
                         initialX = params.x;
@@ -130,8 +135,8 @@ public class ChatHeadService extends Service {
                             params.y = initialY - (int) (event.getRawY () - initialTouchY);
                         }
                         else {*/
-                            params.x = initialX - (int) (event.getRawX () - initialTouchX);
-                            params.y = initialY - (int) (event.getRawY () - initialTouchY);
+                        params.x = initialX - (int) (event.getRawX () - initialTouchX);
+                        params.y = initialY - (int) (event.getRawY () - initialTouchY);
                         //}
                         windowManager.updateViewLayout (viewOverlay, params);
                         return true;
@@ -144,26 +149,49 @@ public class ChatHeadService extends Service {
 
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
-        word = intent.getStringExtra ("word");
-        sentence = intent.getStringExtra ("sentence");
-        if (word.trim ().length () > 0) {
-            if (tvWord != null) {
-                tvWord.setText (word);
 
-                ArrayList<DictionaryWordModel.Meaning> wordMeaning= DataClient.getWordMeaning (word);
-                if(wordMeaning != null)
-                {
-                    tvMeaning.setText (wordMeaning.get (0).getMeaning ());
-                    tvWordType.setText (wordMeaning.get(0).getMeaningUsage ());
-                }
-                else {
-                    tvMeaning.setText ("Can't find the meaning");
-                }
-            }
-        }else {
-            stopSelf ();
+        if(!word.equalsIgnoreCase (intent.getStringExtra ("word").trim ())){
+            word = intent.getStringExtra ("word").trim ();
+            sentence = intent.getStringExtra ("sentence");
+            showMeaning (word);
         }
         return START_STICKY;
+    }
+
+    void showMeaning (String word) {
+        if (word.length () > 0) {
+            if (tvWord != null) {
+                String firstLetter = word.substring (0,1);
+                word = word.toLowerCase ();
+                word = word.replace (firstLetter,firstLetter.toUpperCase ());
+
+                tvWord.setText (word);
+
+                ArrayList<DictionaryWordModel.Meaning> wordMeaning = DataClient.getWordMeaning (word);
+
+                if (null != wordMeaning) {
+                    tvMeaning.setText (wordMeaning.get (0).getMeaning ());
+
+                    String categoryName
+                            = DataClient.getCategoryName (wordMeaning.get (0).getCategoryId ());
+                    if (!categoryName.equals ("none")) {
+                        tvWordType.setVisibility (View.VISIBLE);
+                        tvWordType.setText (categoryName);
+                    }
+                    else {
+                        tvWordType.setVisibility (View.GONE);
+                    }
+                }
+                else {
+                    //tvWordType.setVisibility (View.GONE);
+                    requestMeaning (word);
+                    tvMeaning.setText ("Requesting meaning");
+                }
+            }
+        }
+        else {
+            requestMeaning (word);
+        }
     }
 
     @Override
@@ -173,6 +201,50 @@ public class ChatHeadService extends Service {
             windowManager.removeView (viewOverlay);
         }
 
+    }
+
+    void requestMeaning (final String word) {
+
+        if (!requestingServer) {
+            requestingServer = true;
+            Call<DictionaryWordModel> call = MainApplication.apiService.getWordMeaning (word);
+
+            call.enqueue (new Callback<DictionaryWordModel> () {
+
+                @Override
+                public void onResponse (Call<DictionaryWordModel> call,
+                                        Response<DictionaryWordModel> response) {
+
+                    requestingServer = false;
+
+                    try {
+
+                        DataClient.insertDictionaryWord (response.body ().getWords ().get (0));
+
+                        for (DictionaryWordModel.Category wordMeaning : response.body ().getCategories ()) {
+                            DataClient.insertDictionaryWordMeaningCategory (wordMeaning);
+                        }
+
+                        for (DictionaryWordModel.Meaning wordMeaning : response.body ().getMeanings ()) {
+                            DataClient.insertDictionaryWordMeaning (wordMeaning);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace ();
+                    }
+
+                    showMeaning (word);
+                }
+
+                @Override
+                public void onFailure (Call<DictionaryWordModel> call, Throwable t) {
+
+                    requestingServer = false;
+
+                    tvMeaning.setText ("Word doesn't exist in our database");
+                    Log.e (TAG, t.toString ());
+                }
+            });
+        }
     }
 
     @Nullable

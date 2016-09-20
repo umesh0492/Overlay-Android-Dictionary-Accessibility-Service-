@@ -65,5 +65,7 @@
     <string name="title_notification">notification</string>
     <string name="message_notification">message notification</string>
     <string name="no_overlay_permission">No Overlay Permission</string>
+    <string name="turn_on_accessibility_service">Turn On Accessibility Service</string>
+    <string name="grant_overlay_permission">Grant Overlay Permission</string>
 
 </resources>

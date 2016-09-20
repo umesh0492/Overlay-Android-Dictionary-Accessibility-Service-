@@ -2,11 +2,14 @@ package com.findmeout.android.model;
 
 import android.graphics.drawable.Drawable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Created by umesh0492 on 19/07/16.
  */
 public class AppListModel {
 
+    @JsonProperty("app_name")
     String app_name;
     Drawable app_icon;
     boolean is_active;

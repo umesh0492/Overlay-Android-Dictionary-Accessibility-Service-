@@ -13,7 +13,7 @@ public class AccessibilityUtils {
     private static final String TAG = "AccessibilityUtils";
 
     // To check if service is enabled
-    public static boolean isAccessibilitySettingsOn(Context mContext) {
+    public  boolean isAccessibilitySettingsOn(Context mContext) {
         int accessibilityEnabled = 0;
         final String service = mContext.getPackageName() + "/" + NewAccessibilityService.class.getCanonicalName();
         try {
