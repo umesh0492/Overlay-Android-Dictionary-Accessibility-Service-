@@ -150,20 +150,25 @@ public class ChatHeadService extends Service {
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
 
-        if(!word.equalsIgnoreCase (intent.getStringExtra ("word").trim ())){
-            word = intent.getStringExtra ("word").trim ();
-            sentence = intent.getStringExtra ("sentence");
-            showMeaning (word);
+        if (intent.hasExtra ("word")) {
+            if (!word.equalsIgnoreCase (intent.getStringExtra ("word").trim ())) {
+                word = intent.getStringExtra ("word").trim ();
+                sentence = intent.getStringExtra ("sentence");
+                showMeaning (word);
+            }
         }
-        return START_STICKY;
+        else {
+            stopSelf ();
+        }
+        return START_NOT_STICKY;
     }
 
     void showMeaning (String word) {
         if (word.length () > 0) {
             if (tvWord != null) {
-                String firstLetter = word.substring (0,1);
+                String firstLetter = word.substring (0, 1);
                 word = word.toLowerCase ();
-                word = word.replace (firstLetter,firstLetter.toUpperCase ());
+                word = word.replace (firstLetter, firstLetter.toUpperCase ());
 
                 tvWord.setText (word);
 

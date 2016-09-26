@@ -15,7 +15,7 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
     private static final String TAG = "MyAccessibilityService";
 
-    String[] packages = {"com.medium.reader","com.quora.android"};
+    String[] packages = {"com.medium.reader"};
 
     @Override
     public void onAccessibilityEvent (AccessibilityEvent event) {
@@ -34,6 +34,7 @@ String pck = event.getPackageName ().toString ().trim ();
             }
         }
         else {
+            closeChatHead();
             //:// TODO: 20/09/16 close chat head service
         }
 
@@ -46,6 +47,12 @@ String pck = event.getPackageName ().toString ().trim ();
 
 
         //event.getAction ()
+    }
+
+    private void closeChatHead () {
+
+        Intent in = new Intent (NewAccessibilityService.this, ChatHeadService.class);
+        startService (in);
     }
 
     private void onQuora (AccessibilityEvent event) {
@@ -160,6 +167,6 @@ String pck = event.getPackageName ().toString ().trim ();
 
     public int onStartCommand (Intent intent, int i, int i2) {
         super.onStartCommand (intent, i, i2);
-        return 1;
+        return START_NOT_STICKY;
     }
 }
