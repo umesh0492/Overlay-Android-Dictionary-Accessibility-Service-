@@ -3,7 +3,7 @@ package com.findmeout.android.ui;
 /**
  * Created by umesh0492 on 24/07/16.
  */
-public class AppListActivity{
+public class AppListActivity {
 
 } /*extends AppCompatActivity {
 

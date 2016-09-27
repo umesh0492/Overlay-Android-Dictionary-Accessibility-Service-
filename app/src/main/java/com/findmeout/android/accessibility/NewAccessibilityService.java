@@ -25,16 +25,16 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
         Log.d (TAG, "ContentDescription " + event.getText ());
 
-String pck = event.getPackageName ().toString ().trim ();
+        String pck = event.getPackageName ().toString ().trim ();
 
-        if(pck.equals (packages[0])) {
+        if (pck.equals (packages[0])) {
 
-            if(event.getEventType () == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED){
+            if (event.getEventType () == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED) {
                 onMedium (event);
             }
         }
         else {
-            closeChatHead();
+            closeChatHead ();
             //:// TODO: 20/09/16 close chat head service
         }
 
@@ -49,52 +49,16 @@ String pck = event.getPackageName ().toString ().trim ();
         //event.getAction ()
     }
 
-    private void closeChatHead () {
-
-        Intent in = new Intent (NewAccessibilityService.this, ChatHeadService.class);
-        startService (in);
-    }
-
-    private void onQuora (AccessibilityEvent event) {
-
-        try{
-            for(AccessibilityNodeInfo info : event.getSource ().findAccessibilityNodeInfosByViewId ("in_app_webview")){
-
-                Log.e (TAG,info.getContentDescription ()+"");
-            }
-        }
-        catch (Exception e){
-            e.printStackTrace ();
-        }
-
-        if(null != event.getSource ())
-        for (int i = 0; i < event.getSource ().getChildCount(); i++) {
-            AccessibilityNodeInfo child =event.getSource ().getChild(i);
-            if (child != null && child.getChildCount() > 1) {
-                child = child.getChild(1);
-                if (child != null && child.getChildCount() > 0) {
-                    child = child.getChild(0);
-                    if (child != null && "android.widget.WebView".equals(child.getClassName())) {
-                        Log.e(TAG,child.getContentDescription()+"");
-                        return;
-                    }
-                }
-            }
-            child = event.getSource ().getChild(i);
-            Log.e(TAG,child.getContentDescription()+"");
-        }
-    }
-
-    void onMedium (AccessibilityEvent event){
+    void onMedium (AccessibilityEvent event) {
         try {
 
-            Log.d (TAG,event.getSource ().getViewIdResourceName ()+"");
-            Log.d (TAG,"action "+event.getSource ().getTextSelectionStart ()+"");
+            Log.d (TAG, event.getSource ().getViewIdResourceName () + "");
+            Log.d (TAG, "action " + event.getSource ().getTextSelectionStart () + "");
 
             String sentence = event.getText ().get (0).toString ();
             String word = sentence.subSequence (event.getSource ().getTextSelectionStart (),
                     event.getSource ().getTextSelectionEnd ()).toString ();
-           if (word.trim ().length () > 0) {
+            if (word.trim ().length () > 0) {
 
                 //:// TODO: 14/06/16  write regex for spaces at both the ends and only alphabets
 
@@ -116,13 +80,21 @@ String pck = event.getPackageName ().toString ().trim ();
 
             }
 
-           // Log.d (TAG, "word : " + word);
+            // Log.d (TAG, "word : " + word);
 
         } catch (Exception e) {
 
             e.printStackTrace ();
         }
     }
+
+    private void closeChatHead () {
+
+        Intent in = new Intent (NewAccessibilityService.this, ChatHeadService.class);
+       // startService (in);
+        stopService (in);
+    }
+
     @Override
     public void onInterrupt () {
 
@@ -150,8 +122,8 @@ String pck = event.getPackageName ().toString ().trim ();
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.DEFAULT;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
-       // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY;
-       // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+        // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY;
+        // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
 
@@ -163,6 +135,36 @@ String pck = event.getPackageName ().toString ().trim ();
 
         super.onServiceConnected ();
 
+    }
+
+    private void onQuora (AccessibilityEvent event) {
+
+        try {
+            for (AccessibilityNodeInfo info : event.getSource ().findAccessibilityNodeInfosByViewId ("in_app_webview")) {
+
+                Log.e (TAG, info.getContentDescription () + "");
+            }
+        } catch (Exception e) {
+            e.printStackTrace ();
+        }
+
+        if (null != event.getSource ()) {
+            for (int i = 0; i < event.getSource ().getChildCount (); i++) {
+                AccessibilityNodeInfo child = event.getSource ().getChild (i);
+                if (child != null && child.getChildCount () > 1) {
+                    child = child.getChild (1);
+                    if (child != null && child.getChildCount () > 0) {
+                        child = child.getChild (0);
+                        if (child != null && "android.widget.WebView".equals (child.getClassName ())) {
+                            Log.e (TAG, child.getContentDescription () + "");
+                            return;
+                        }
+                    }
+                }
+                child = event.getSource ().getChild (i);
+                Log.e (TAG, child.getContentDescription () + "");
+            }
+        }
     }
 
     public int onStartCommand (Intent intent, int i, int i2) {

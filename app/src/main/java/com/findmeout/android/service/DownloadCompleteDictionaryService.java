@@ -11,16 +11,17 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.findmeout.android.MainApplication;
-import com.findmeout.android.Preferences;
 import com.findmeout.android.R;
-import com.findmeout.android.data.client.DataClient;
 import com.findmeout.android.model.DictionaryWordModel;
-
-import java.util.ArrayList;
+import com.findmeout.android.utils.Preferences;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import static com.findmeout.android.utils.Utils.insertWordMeaningCategoryResultInDB;
+import static com.findmeout.android.utils.Utils.insertWordMeaningResultInDB;
+import static com.findmeout.android.utils.Utils.insertWordResultInDB;
 
 public class DownloadCompleteDictionaryService extends Service {
 
@@ -58,6 +59,12 @@ public class DownloadCompleteDictionaryService extends Service {
 
     }
 
+    @Override
+    public void onDestroy () {
+        super.onDestroy ();
+
+    }
+
     @Nullable
     @Override
     public IBinder onBind (Intent intent) {
@@ -76,7 +83,6 @@ public class DownloadCompleteDictionaryService extends Service {
                 insertWordMeaningCategoryResultInDB (response.body ().getCategories ());
                 Preferences.setNextDownloadWordMeaningCategoryId ("-1");
                 requestWords ();
-
             }
 
             @Override
@@ -125,18 +131,13 @@ public class DownloadCompleteDictionaryService extends Service {
             public void onResponse (Call<DictionaryWordModel> call,
                                     Response<DictionaryWordModel> response) {
 
-                String nextId = insertWordResultInDB (response.body ().getWords ());
-
-                if(!nextId.equals ("0")){
-                    Preferences.setNextDownloadWordId (nextId);
-                }
-                else{
-                    response.body ().setIsNext (false);
-                    Preferences.setNextDownloadWordId ("-1");
-                }
-
+                insertWordResultInDB (response.body ().getWords ());
 
                 if (response.body ().getIsNext ()) {
+                    Preferences.setNextDownloadWordId (
+                            (String.valueOf (response.body ().getWords ()
+                                    .get (response.body ().getWords ().size ()-1)
+                                    .getId ())));
                     requestWords ();
                 }
                 else {
@@ -186,18 +187,15 @@ public class DownloadCompleteDictionaryService extends Service {
             @Override
             public void onResponse (Call<DictionaryWordModel> call, Response<DictionaryWordModel> response) {
 
-                String nextId = insertWordMeaningResultInDB (response.body ().getMeanings ());
-
-                if(!nextId.equals ("0")){
-                    Preferences.setNextDownloadWordMeaningId (nextId);
-                }
-                else{
-                    response.body ().setIsNext (false);
-                    Preferences.setNextDownloadWordMeaningId ("-1");
-                }
+                insertWordMeaningResultInDB (response.body ().getMeanings ());
 
                 if (response.body ().getIsNext ()) {
-                     requestMeanings ();
+                    Preferences.setNextDownloadWordMeaningId
+                            (String.valueOf (response.body ().getMeanings ()
+                                    .get (response.body ().getMeanings ().size ()-1)
+                                    .getId ()));
+
+                    requestMeanings ();
                 }
                 else {
                     Preferences.setNextDownloadWordMeaningId ("-1");
@@ -212,38 +210,6 @@ public class DownloadCompleteDictionaryService extends Service {
                 Log.e (TAG, t.toString ());
             }
         });
-    }
-
-
-    private String insertWordMeaningCategoryResultInDB (ArrayList<DictionaryWordModel.Category> wordMeaningCategories) {
-        String lastInsetId = null;
-        for (DictionaryWordModel.Category wordMeaningCategory : wordMeaningCategories) {
-            Log.d ("cat id", wordMeaningCategory.getCategoryID () + "");
-            lastInsetId = DataClient.insertDictionaryWordMeaningCategory (wordMeaningCategory);
-        }
-        return lastInsetId;
-
-    }
-
-    private String insertWordMeaningResultInDB (ArrayList<DictionaryWordModel.Meaning> wordMeanings) {
-
-        String lastInsetId = null;
-
-        for (DictionaryWordModel.Meaning wordMeaning : wordMeanings) {
-            lastInsetId = DataClient.insertDictionaryWordMeaning (wordMeaning);
-        }
-        return lastInsetId;
-
-    }
-
-    private String insertWordResultInDB (ArrayList<DictionaryWordModel.Word> wordModelArrayList) {
-
-        String lastInsetId = null;
-        for (DictionaryWordModel.Word wordModel : wordModelArrayList) {
-            lastInsetId = DataClient.insertDictionaryWord (wordModel);
-        }
-
-        return lastInsetId;
     }
 
     void showNotification (int progress) {
@@ -307,11 +273,5 @@ public class DownloadCompleteDictionaryService extends Service {
                 }
 // Starts the thread by calling the run() method in its Runnable
         ).start();*/
-    }
-
-    @Override
-    public void onDestroy () {
-        super.onDestroy ();
-
     }
 }

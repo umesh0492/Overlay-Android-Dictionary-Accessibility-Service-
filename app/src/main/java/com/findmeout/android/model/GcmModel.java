@@ -11,19 +11,19 @@ public class GcmModel {
 
     short type;
     /**
-     0--> Insert Category
-     1--> Update Category
-     2--> Delete Category
-
-     3--> Insert Meaning
-     4--> Update Meaning
-     5--> Delete Meaning
-
-     6--> Insert Word
-     7--> Update Word
-     8--> Delete Word
-
-     9--> Casual Message (priority {image,text}), if url is there navigate
+     * 0--> Insert Category
+     * 1--> Update Category
+     * 2--> Delete Category
+     * <p>
+     * 3--> Insert Meaning
+     * 4--> Update Meaning
+     * 5--> Delete Meaning
+     * <p>
+     * 6--> Insert Word
+     * 7--> Update Word
+     * 8--> Delete Word
+     * <p>
+     * 9--> Casual Message (priority {image,text}), if url is there navigate
      **/
 
 

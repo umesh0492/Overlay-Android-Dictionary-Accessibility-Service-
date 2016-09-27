@@ -1,8 +1,10 @@
-package com.findmeout.android;
+package com.findmeout.android.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+
+import com.findmeout.android.MainApplication;
 
 public class Preferences {
 
@@ -18,14 +20,12 @@ public class Preferences {
     private static final String NEXT_DOWNLOAD_CATEGORY_ID = "NEXT_DOWNLOAD_CATEGORY_ID";
     private static final String NEXT_DOWNLOAD_WORD_MEANING_ID = "NEXT_DOWNLOAD_WORD_MEANING_ID";
 
+    public static String getPubKey () {
+        return getSharedPref (MainApplication.context).getString (PREF_PUB_KEY, null);
+    }
 
     private static SharedPreferences getSharedPref (Context ctx) {
         return ctx.getSharedPreferences (PREF, Context.MODE_PRIVATE);
-    }
-
-
-    public static String getPubKey () {
-        return getSharedPref (MainApplication.context).getString (PREF_PUB_KEY, null);
     }
 
     public static void setPubKey (String key) {
@@ -60,6 +60,12 @@ public class Preferences {
         setRegistration (true);
     }
 
+    public static void setRegistration (boolean isRegistered) {
+        Editor edit = getSharedPref (MainApplication.context).edit ();
+        edit.putBoolean (REGISTRATION_DONE, isRegistered);
+        edit.commit ();
+    }
+
     public static Integer getAppVersion () {
         return getSharedPref (MainApplication.context).getInt (APP_VERSION, Integer.MIN_VALUE);
     }
@@ -78,12 +84,6 @@ public class Preferences {
     public static void setAppState (int state) {
         Editor edit = getSharedPref (MainApplication.context).edit ();
         edit.putInt (APP_STATE, state);
-        edit.commit ();
-    }
-
-    public static void setRegistration (boolean isRegistered) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
-        edit.putBoolean (REGISTRATION_DONE, isRegistered);
         edit.commit ();
     }
 
@@ -123,7 +123,7 @@ public class Preferences {
     }
 
 
-    public static void onAuthFail(){
+    public static void onAuthFail () {
 
         //on app auth fail
         setAppState (2);// on registration fragment

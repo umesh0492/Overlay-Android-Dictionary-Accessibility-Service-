@@ -27,10 +27,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.findmeout.android.Preferences;
 import com.findmeout.android.R;
 import com.findmeout.android.accessibility.AccessibilityUtils;
 import com.findmeout.android.service.DownloadCompleteDictionaryService;
+import com.findmeout.android.utils.Preferences;
 
 import java.lang.reflect.Method;
 
@@ -47,27 +47,57 @@ import java.lang.reflect.Method;
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private CardView cvOverlayPermissionButton, cvAccessibilityServiceButton, cvDownloadDictionaryButton,
-            cvDownloadDictionaryProgressLayout;
-    private TextView tvOverlayPermissionText, tvAccessibilityServiceText, tvDownloadDictionaryProgressText;
+    private CardView cvOverlayPermissionButton, cvAccessibilityServiceButton,
+            cvDownloadDictionaryButton, cvDownloadDictionaryProgressLayout;
+    private TextView tvOverlayPermissionText, tvAccessibilityServiceText,
+            tvDownloadDictionaryProgressText, tvEveryThingOk;
 
     private ProgressBar pbDownloadDictionaryProgress;
     private ImageView ivCancelDictionaryDownload;
+
+    private boolean dictionaryDownloaded = false, everyThingOk = true;
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver () {
+        @Override
+        public void onReceive (Context context, Intent intent) {
+            // Get extra data included in the Intent
+            int progress = intent.getIntExtra ("progress", 0);
+            Log.e ("progress", "" + progress);
+            if (progress < 100) {
+                tvDownloadDictionaryProgressText.setText (String.format ("%d%%", progress));
+                pbDownloadDictionaryProgress.setProgress (progress);
+                showDownloadButton (false);
+            }
+            else {
+                //dictionary downloaded.
+                dictionaryDownloaded ();
+            }
+        }
+    };
+
+    private void dictionaryDownloaded () {
+        cvDownloadDictionaryButton.setVisibility (View.GONE);
+        cvDownloadDictionaryProgressLayout.setVisibility (View.GONE);
+    }
 
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate (savedInstanceState);
         setContentView (R.layout.main_activity);
 
-        pbDownloadDictionaryProgress = (ProgressBar) findViewById (R.id.download_dictionary_progress);
+        pbDownloadDictionaryProgress = (ProgressBar)
+                findViewById (R.id.download_dictionary_progress);
         ivCancelDictionaryDownload = (ImageView) findViewById (R.id.cancel_downloading_button);
         cvAccessibilityServiceButton = (CardView) findViewById (R.id.accessibility_service_button);
         cvOverlayPermissionButton = (CardView) findViewById (R.id.overlay_permission_button);
         cvDownloadDictionaryButton = (CardView) findViewById (R.id.download_dictionary_button);
-        cvDownloadDictionaryProgressLayout = (CardView) findViewById (R.id.download_dictionary_progress_layout);
+        cvDownloadDictionaryProgressLayout = (CardView)
+                findViewById (R.id.download_dictionary_progress_layout);
         tvAccessibilityServiceText = (TextView) findViewById (R.id.accessibility_service_text);
         tvOverlayPermissionText = (TextView) findViewById (R.id.overlay_permission_text);
-        tvDownloadDictionaryProgressText = (TextView) findViewById (R.id.download_dictionary_progress_text);
+        tvDownloadDictionaryProgressText = (TextView)
+                findViewById (R.id.download_dictionary_progress_text);
+        tvEveryThingOk = (TextView) findViewById (R.id.every_thing_ok);
+
         cvOverlayPermissionButton.setOnClickListener (this);
         cvAccessibilityServiceButton.setOnClickListener (this);
         ivCancelDictionaryDownload.setOnClickListener (this);
@@ -78,41 +108,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart () {
         super.onStart ();
-        LocalBroadcastManager.getInstance (this).registerReceiver (mMessageReceiver,
-                new IntentFilter ("download_dictionary_intent"));
+
+        if (isDictionaryDownloaded ()) {
+            dictionaryDownloaded ();
+            dictionaryDownloaded = true;
+        }
+        else {
+            LocalBroadcastManager.getInstance (this).registerReceiver (mMessageReceiver,
+                    new IntentFilter ("download_dictionary_intent"));
+        }
         initUIWithData ();
+    }
+
+    private boolean isDictionaryDownloaded () {
+        if (("-1".equals (Preferences.getNextDownloadWordMeaningCategoryId ())
+                && ("-1".equals (Preferences.getNextDownloadWordId ()))
+                && ("-1".equals (Preferences.getNextDownloadWordMeaningId ())))) {
+            dictionaryDownloaded ();
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     @Override
     protected void onStop () {
-        LocalBroadcastManager.getInstance (this).unregisterReceiver (mMessageReceiver);
+        if (!dictionaryDownloaded) {
+            LocalBroadcastManager.getInstance (this).unregisterReceiver (mMessageReceiver);
+        }
         super.onStop ();
     }
-
-    void showDownloadButton (boolean visible) {
-
-        if (visible) {
-            cvDownloadDictionaryButton.setVisibility (View.VISIBLE);
-            cvDownloadDictionaryProgressLayout.setVisibility (View.GONE);
-        }
-        else {
-            cvDownloadDictionaryButton.setVisibility (View.GONE);
-            cvDownloadDictionaryProgressLayout.setVisibility (View.VISIBLE);
-        }
-    }
-
-    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver () {
-        @Override
-        public void onReceive (Context context, Intent intent) {
-            // Get extra data included in the Intent
-            int progress = intent.getIntExtra ("progress", 0);
-            Log.e ("progress", "" + progress);
-            tvDownloadDictionaryProgressText.setText (String.format ("%d%%", progress));
-            pbDownloadDictionaryProgress.setProgress (progress);
-            showDownloadButton (false);
-
-        }
-    };
 
     private void initUIWithData () {
 
@@ -123,6 +149,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tvAccessibilityServiceText.setText (getString (R.string.turn_on_accessibility_service));
             cvAccessibilityServiceButton.setVisibility (View.VISIBLE);
             cvAccessibilityServiceButton.setBackgroundColor (Color.RED);
+            everyThingOk =false;
         }
 
         if (canDrawOverlayViews ()) {
@@ -132,51 +159,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             tvOverlayPermissionText.setText (getString (R.string.grant_overlay_permission));
             cvOverlayPermissionButton.setVisibility (View.VISIBLE);
             cvOverlayPermissionButton.setBackgroundColor (Color.RED);
+            everyThingOk = false;
         }
 
-        if (null == Preferences.getNextDownloadWordMeaningCategoryId ()
-                && null == Preferences.getNextDownloadWordId ()
-                && null == Preferences.getNextDownloadWordMeaningId ()) {
-            cvDownloadDictionaryButton.setVisibility (View.GONE);
-            cvDownloadDictionaryProgressLayout.setVisibility (View.GONE);
-
+        if (!isDictionaryDownloaded ()) {
+            showDownloadButton (true);
+            everyThingOk =false;
+        }
+        if (everyThingOk){
+            tvEveryThingOk .setVisibility (View.VISIBLE);
         }
         else {
-            showDownloadButton (true);
-        }
-    }
+            tvEveryThingOk .setVisibility (View.GONE);
 
-    @Override
-    public void onClick (View view) {
-        switch (view.getId ()) {
-            case R.id.accessibility_service_button:
-                requestAccessibilityServicePermission ();
-                break;
-            case R.id.overlay_permission_button:
-                try {
-                    requestOverlayDrawPermission (1);
-                } catch (ActivityNotFoundException e) {
-
-                }
-                break;
-            case R.id.download_dictionary_button:
-                startService (new Intent (MainActivity.this, DownloadCompleteDictionaryService.class));
-                showDownloadButton (false);
-                break;
-            case R.id.cancel_downloading_button:
-                Intent in = new Intent (MainActivity.this, DownloadCompleteDictionaryService.class);
-                in.putExtra ("close", true);
-                startService (in);
-                showDownloadButton (true);
-                break;
-        }
-    }
-
-    void requestAccessibilityServicePermission () {
-
-        if (!new AccessibilityUtils ().isAccessibilitySettingsOn (this)) {
-            Intent intent = new Intent (android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            startActivityForResult (intent, 0);
         }
     }
 
@@ -193,6 +188,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    void showDownloadButton (boolean visible) {
+
+        if (visible) {
+            cvDownloadDictionaryButton.setVisibility (View.VISIBLE);
+            cvDownloadDictionaryProgressLayout.setVisibility (View.GONE);
+        }
+        else {
+            cvDownloadDictionaryButton.setVisibility (View.GONE);
+            cvDownloadDictionaryProgressLayout.setVisibility (View.VISIBLE);
+        }
+    }
 
     public boolean canDrawOverlaysUsingReflection (Context context) {
 
@@ -221,14 +227,49 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
-    @SuppressLint ("InlinedApi")
-    public void requestOverlayDrawPermission (int requestCode) {
-        Intent intent = new Intent (Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse ("package:" + getPackageName ()));
+    @Override
+    public void onClick (View view) {
+        switch (view.getId ()) {
+            case R.id.accessibility_service_button:
+                requestAccessibilityServicePermission ();
+                break;
+            case R.id.overlay_permission_button:
+                try {
+                    requestOverlayDrawPermission (1);
+                } catch (ActivityNotFoundException e) {
 
-        startActivityForResult (intent, requestCode);
-
+                }
+                break;
+            case R.id.download_dictionary_button:
+                startService (new Intent (MainActivity.this,
+                        DownloadCompleteDictionaryService.class));
+                showDownloadButton (false);
+                break;
+            case R.id.cancel_downloading_button:
+                Intent in = new Intent (MainActivity.this,
+                        DownloadCompleteDictionaryService.class);
+                in.putExtra ("close", true);
+                startService (in);
+                showDownloadButton (true);
+                break;
+        }
     }
 
+    void requestAccessibilityServicePermission () {
+
+        if (!new AccessibilityUtils ().isAccessibilitySettingsOn (this)) {
+            Intent intent = new Intent (android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS);
+            startActivityForResult (intent, 0);
+        }
+    }
+
+    @SuppressLint ("InlinedApi")
+    public void requestOverlayDrawPermission (int requestCode) {
+        Intent intent = new Intent (Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse ("package:" + getPackageName ()));
+
+        startActivityForResult (intent, requestCode);
+    }
 
     @Override
     protected void onActivityResult (int requestCode, int resultCode, Intent data) {
@@ -250,17 +291,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case 1:
 
                     Toast.makeText (this,
-                            "display pop-up window permission not granted automatically, kindly grant manually",
+                            "display pop-up window permission not" +
+                                    " granted automatically, kindly grant manually",
                             Toast.LENGTH_LONG).show ();
 
                     AlertDialog.Builder builder = new AlertDialog.Builder (MainActivity.this);
                     builder.setTitle ("Grant permission manually");
-                    builder.setMessage ("Find permission manager and grant display pop-up window permission");
+                    builder.setMessage ("Find permission manager and grant" +
+                            " display pop-up window permission");
                     builder.setPositiveButton ("OK", new DialogInterface.OnClickListener () {
                         @Override
                         public void onClick (DialogInterface dialogInterface, int i) {
 
-                            Intent intent = new Intent (Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Intent intent
+                                    = new Intent (Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                                     Uri.fromParts ("package", getPackageName (), null));
                             intent.addFlags (Intent.FLAG_ACTIVITY_NEW_TASK);
                             startActivity (intent);

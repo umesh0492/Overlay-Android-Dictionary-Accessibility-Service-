@@ -4,8 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
-    android:background="@android:color/holo_blue_light">
+    android:background="@android:color/holo_blue_light"
+    android:padding="8dp">
 
     <TextView
         android:id="@+id/close"
@@ -22,8 +22,8 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@id/close"
-        android:paddingTop="8sp"
         android:paddingBottom="8sp"
+        android:paddingTop="8sp"
         android:text="I am overlay"
         android:textColor="@android:color/white"
         android:textSize="14sp"/>
@@ -33,21 +33,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_toLeftOf="@id/close"
         android:layout_below="@id/word"
+        android:layout_toLeftOf="@id/close"
         android:text="Verb"
-        android:visibility="gone"
         android:textColor="@android:color/white"
-        android:textSize="11sp"/>
+        android:textSize="11sp"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/meaning"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/word_type"
-        android:paddingTop="8sp"
         android:breakStrategy="balanced"
         android:paddingBottom="8sp"
+        android:paddingTop="8sp"
         android:text="is an 2014  soap series that aired on Hum TV. It is directed by  while written by veteran writer and poet .
          Series was produced by   at  Productions."
         android:textColor="@android:color/white"

@@ -3,7 +3,8 @@ package com.findmeout.android.ui;
 /**
  * Created by umesh0492 on 19/07/16.
  */
-public class AppListFragment {}/*extends Fragment {
+public class AppListFragment {
+}/*extends Fragment {
 
 
     RecyclerView rvAppList;

@@ -172,3 +172,7 @@ public static final org.codehaus.jackson.annotate.JsonAutoDetect$Visibility *; }
 -keep public class your.class.** {
   *;
 }
+
+#dbflow
+-keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }
+

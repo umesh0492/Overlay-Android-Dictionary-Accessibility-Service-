@@ -16,16 +16,11 @@ import android.net.Uri;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.findmeout.android.MainApplication;
-import com.findmeout.android.Preferences;
 import com.findmeout.android.R;
-import com.findmeout.android.data.client.DataClient;
-import com.findmeout.android.model.DictionaryWordModel;
 import com.findmeout.android.model.GcmModel;
-import com.findmeout.android.service.DownloadCompleteDictionaryService;
 import com.findmeout.android.ui.MainActivity;
+import com.findmeout.android.utils.Mapper;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -63,17 +58,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         GcmModel model = null;
         if (remoteMessage.getData ().size () > 0) {
-            ObjectReader obj = new ObjectMapper ().readerFor (GcmModel.class);
 
-            try {
-                model = obj.readValue (remoteMessage.getData ().get ("data"));
-            } catch (IOException e) {
-                e.printStackTrace ();
-            }
+            model = Mapper.object (remoteMessage.getData ().get ("data"), GcmModel.class);
 
             if (null != model) {
 
-                actAccordingToTarget (model);
+                // actAccordingToTarget (model);
 
             }
             Log.d (TAG, "Message data payload: " + remoteMessage.getData ());
@@ -88,6 +78,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // message, here is where that should be initiated. See sendNotification method below.
     }
 
+/*
     private void actAccordingToTarget (GcmModel model) {
 
         switch (model.getType ()) {
@@ -176,6 +167,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 break;
         }
     }
+*/
     // [END receive_message]
 
 
@@ -186,7 +178,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         intent.addFlags (Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity (this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
-        if(null != message.getUrl ()){
+        if (null != message.getUrl ()) {
             intent.putExtra ("url", message.getUrl ());
         }
 

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  */
 public class AppListModel {
 
-    @JsonProperty("app_name")
+    @JsonProperty ("app_name")
     String app_name;
     Drawable app_icon;
     boolean is_active;

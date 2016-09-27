@@ -23,10 +23,15 @@ import android.widget.TextView;
 
 import com.findmeout.android.MainApplication;
 import com.findmeout.android.R;
-import com.findmeout.android.data.client.DataClient;
+import com.findmeout.android.data.tables.Categories;
+import com.findmeout.android.data.tables.Categories_Table;
+import com.findmeout.android.data.tables.Meanings;
+import com.findmeout.android.data.tables.Meanings_Table;
+import com.findmeout.android.data.tables.Words;
+import com.findmeout.android.data.tables.Words_Table;
 import com.findmeout.android.model.DictionaryWordModel;
-
-import java.util.ArrayList;
+import com.findmeout.android.utils.Utils;
+import com.raizlabs.android.dbflow.sql.language.Select;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -34,23 +39,20 @@ import retrofit2.Response;
 
 public class ChatHeadService extends Service {
     private static final String TAG = "ChatHeadService";
-
-    private WindowManager windowManager;
-    private View viewOverlay;
-    private LayoutInflater layoutInflater;
-    private WindowManager.LayoutParams params;
-
-    private Handler mHandler;
-    private Display mDisplay;
-    private int mWidth;
-    private int mHeight;
     TextView tvWord;
     TextView tvWordType;
     TextView tvMeaning;
     String sentence = "";
     String word = "";
-
     boolean requestingServer = false;
+    private WindowManager windowManager;
+    private View viewOverlay;
+    private LayoutInflater layoutInflater;
+    private WindowManager.LayoutParams params;
+    private Handler mHandler;
+    private Display mDisplay;
+    private int mWidth;
+    private int mHeight;
 
     @Override
     public void onCreate () {
@@ -163,42 +165,6 @@ public class ChatHeadService extends Service {
         return START_NOT_STICKY;
     }
 
-    void showMeaning (String word) {
-        if (word.length () > 0) {
-            if (tvWord != null) {
-                String firstLetter = word.substring (0, 1);
-                word = word.toLowerCase ();
-                word = word.replace (firstLetter, firstLetter.toUpperCase ());
-
-                tvWord.setText (word);
-
-                ArrayList<DictionaryWordModel.Meaning> wordMeaning = DataClient.getWordMeaning (word);
-
-                if (null != wordMeaning) {
-                    tvMeaning.setText (wordMeaning.get (0).getMeaning ());
-
-                    String categoryName
-                            = DataClient.getCategoryName (wordMeaning.get (0).getCategoryId ());
-                    if (!categoryName.equals ("none")) {
-                        tvWordType.setVisibility (View.VISIBLE);
-                        tvWordType.setText (categoryName);
-                    }
-                    else {
-                        tvWordType.setVisibility (View.GONE);
-                    }
-                }
-                else {
-                    //tvWordType.setVisibility (View.GONE);
-                    requestMeaning (word);
-                    tvMeaning.setText ("Requesting meaning");
-                }
-            }
-        }
-        else {
-            requestMeaning (word);
-        }
-    }
-
     @Override
     public void onDestroy () {
         super.onDestroy ();
@@ -208,7 +174,63 @@ public class ChatHeadService extends Service {
 
     }
 
+    @Nullable
+    @Override
+    public IBinder onBind (Intent intent) {
+        return null;
+    }
+
+    void showMeaning (String word) {
+        if (word.length () > 0) {
+            if (tvWord != null) {
+                String firstLetter = word.substring (0, 1);
+                word = word.toLowerCase ();
+                word = word.replace (firstLetter, firstLetter.toUpperCase ());
+
+                tvWord.setText (word);
+
+                // :// TODO: 27/09/16 implement joins
+                Words wordId = new Select ().from (Words.class)
+                        .where (Words_Table.word.is (word))
+                        .querySingle ();
+                if (null != wordId) {
+                    Meanings meanings = new Select ().from (Meanings.class)
+                            .where (Meanings_Table.wordId.is (wordId.getId ()))
+                            .querySingle ();
+
+                    if (null != meanings) {
+                        tvMeaning.setText (meanings.getMeaning ());
+                        Categories category = new Select ().from (Categories.class)
+                                .where (Categories_Table.id.is (meanings.getCategoryId ()))
+                                .querySingle ();
+
+                        if (!category.getCategoryName ().equals ("none")) {
+                            tvWordType.setVisibility (View.VISIBLE);
+                            tvWordType.setText (category.getCategoryName ());
+                        }
+                        else {
+                            tvWordType.setVisibility (View.GONE);
+                        }
+                    }
+                    else {
+                        requestMeaning (word);
+                    }
+                }
+
+                else {
+                    //tvWordType.setVisibility (View.GONE);
+                    requestMeaning (word);
+                }
+            }
+        }
+        else {
+            requestMeaning (word);
+        }
+    }
+
     void requestMeaning (final String word) {
+
+        tvMeaning.setText ("Requesting meaning");
 
         if (!requestingServer) {
             requestingServer = true;
@@ -223,16 +245,10 @@ public class ChatHeadService extends Service {
                     requestingServer = false;
 
                     try {
+                        Utils.insertWordResultInDB (response.body ().getWords ());
+                        Utils.insertWordMeaningCategoryResultInDB (response.body ().getCategories ());
+                        Utils.insertWordMeaningResultInDB (response.body ().getMeanings ());
 
-                        DataClient.insertDictionaryWord (response.body ().getWords ().get (0));
-
-                        for (DictionaryWordModel.Category wordMeaning : response.body ().getCategories ()) {
-                            DataClient.insertDictionaryWordMeaningCategory (wordMeaning);
-                        }
-
-                        for (DictionaryWordModel.Meaning wordMeaning : response.body ().getMeanings ()) {
-                            DataClient.insertDictionaryWordMeaning (wordMeaning);
-                        }
                     } catch (Exception e) {
                         e.printStackTrace ();
                     }
@@ -250,12 +266,6 @@ public class ChatHeadService extends Service {
                 }
             });
         }
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind (Intent intent) {
-        return null;
     }
 
 }

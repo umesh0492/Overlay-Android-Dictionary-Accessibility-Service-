@@ -3,7 +3,8 @@ package com.findmeout.android.ui;
 /**
  * Created by umesh0492 on 11/10/15.
  */
-public class AppListAdapter {}
+public class AppListAdapter {
+}
 /*extends RecyclerView.Adapter<AppListAdapter.ItemViewHolder> {
 
     final String TAG = AppListAdapter.class.getSimpleName ();
