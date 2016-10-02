@@ -11,7 +11,9 @@ import android.graphics.Point;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.speech.tts.TextToSpeech;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -19,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.findmeout.android.MainApplication;
@@ -33,15 +36,18 @@ import com.findmeout.android.model.DictionaryWordModel;
 import com.findmeout.android.utils.Utils;
 import com.raizlabs.android.dbflow.sql.language.Select;
 
+import java.util.Locale;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatHeadService extends Service {
+public class ChatHeadService extends Service  implements TextToSpeech.OnInitListener{
     private static final String TAG = "ChatHeadService";
     TextView tvWord;
     TextView tvWordType;
     TextView tvMeaning;
+    ImageView tts_button;
     String sentence = "";
     String word = "";
     boolean requestingServer = false;
@@ -54,10 +60,13 @@ public class ChatHeadService extends Service {
     private int mWidth;
     private int mHeight;
 
+    private TextToSpeech tts;
+
+
     @Override
     public void onCreate () {
         super.onCreate ();
-
+        tts = new TextToSpeech(this, this);
         windowManager = (WindowManager) getSystemService (WINDOW_SERVICE);
         layoutInflater = (LayoutInflater) getSystemService (LAYOUT_INFLATER_SERVICE);
 
@@ -95,6 +104,7 @@ public class ChatHeadService extends Service {
         tvWord = (TextView) viewOverlay.findViewById (R.id.word);
         tvMeaning = (TextView) viewOverlay.findViewById (R.id.meaning);
         tvWordType = (TextView) viewOverlay.findViewById (R.id.word_type);
+        tts_button = (ImageView) viewOverlay.findViewById (R.id.tts_button);
 
         viewOverlay.findViewById (R.id.close).setOnClickListener (new View.OnClickListener () {
             @Override
@@ -102,6 +112,16 @@ public class ChatHeadService extends Service {
                 word = "";
                 sentence = "";
                 stopSelf ();
+            }
+        });
+
+        tts_button.setOnClickListener (new View.OnClickListener () {
+            @Override
+            public void onClick (View v) {
+
+                if(!TextUtils.isEmpty (word)){
+                    speakOut();
+                }
             }
         });
 
@@ -149,6 +169,7 @@ public class ChatHeadService extends Service {
         windowManager.addView (viewOverlay, params);
     }
 
+
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
 
@@ -157,6 +178,7 @@ public class ChatHeadService extends Service {
                 word = intent.getStringExtra ("word").trim ();
                 sentence = intent.getStringExtra ("sentence");
                 showMeaning (word);
+                tvWordType.setVisibility (View.GONE);
             }
         }
         else {
@@ -165,14 +187,6 @@ public class ChatHeadService extends Service {
         return START_NOT_STICKY;
     }
 
-    @Override
-    public void onDestroy () {
-        super.onDestroy ();
-        if (viewOverlay != null) {
-            windowManager.removeView (viewOverlay);
-        }
-
-    }
 
     @Nullable
     @Override
@@ -188,6 +202,8 @@ public class ChatHeadService extends Service {
                 word = word.replace (firstLetter, firstLetter.toUpperCase ());
 
                 tvWord.setText (word);
+
+                //:// TODO: 02/10/16 check for e or es and matching words 
 
                 // :// TODO: 27/09/16 implement joins
                 Words wordId = new Select ().from (Words.class)
@@ -266,6 +282,50 @@ public class ChatHeadService extends Service {
                 }
             });
         }
+    }
+
+    @Override
+    public void onDestroy() {
+
+        if (viewOverlay != null) {
+            windowManager.removeView (viewOverlay);
+        }
+
+        // Don't forget to shutdown tts!
+        if (tts != null) {
+            tts.stop();
+            tts.shutdown();
+        }
+        super.onDestroy();
+    }
+
+    /**
+     * Called to signal the completion of the TextToSpeech engine initialization.
+     *
+     * @param status {@link TextToSpeech#SUCCESS} or {@link TextToSpeech#ERROR}.
+     */
+    @Override
+    public void onInit (int status) {
+        if (status == TextToSpeech.SUCCESS) {
+
+            int result = tts.setLanguage(Locale.US);
+            tts.setSpeechRate(0.7f);
+            if (result == TextToSpeech.LANG_MISSING_DATA
+                    || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("TTS", "This Language is not supported");
+            } else {
+                tts_button.setEnabled(true);
+                speakOut();
+            }
+
+        } else {
+            Log.e("TTS", "Initilization Failed!");
+        }
+    }
+
+    private void speakOut () {
+
+        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null);
     }
 
 }

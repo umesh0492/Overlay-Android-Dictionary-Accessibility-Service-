@@ -230,7 +230,7 @@ public class DownloadCompleteDictionaryService extends Service {
 
         if (progress != 100) {
             //mBuilder.setAutoCancel (false);
-            mBuilder.setOngoing (true);
+            //mBuilder.setOngoing (true);
             mBuilder.setProgress (100, progress, false);
             // Displays the progress bar for the first time.
             mNotifyManager.notify (id, mBuilder.build ());

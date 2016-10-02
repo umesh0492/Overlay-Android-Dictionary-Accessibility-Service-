@@ -22,13 +22,6 @@ public class Words extends BaseModel {
     @JsonProperty ("word")
     String word;
 
-    @Column
-    @JsonProperty ("phonetic")
-    String phonetic;
-
-    @Column
-    @JsonProperty ("phonetic_sound")
-    String phoneticSound;
 
     @Column
     @JsonProperty ("createdAt")
@@ -60,22 +53,6 @@ public class Words extends BaseModel {
 
     public void setId (int id) {
         this.id = id;
-    }
-
-    public String getPhonetic () {
-        return phonetic;
-    }
-
-    public void setPhonetic (String phonetic) {
-        this.phonetic = phonetic;
-    }
-
-    public String getPhoneticSound () {
-        return phoneticSound;
-    }
-
-    public void setPhoneticSound (String phoneticSound) {
-        this.phoneticSound = phoneticSound;
     }
 
     public String getWord () {

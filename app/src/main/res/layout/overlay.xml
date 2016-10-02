@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:padding="12sp"
+        android:textSize="15sp"
         android:text="close"/>
 
     <TextView
@@ -21,12 +22,20 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@id/close"
         android:paddingBottom="8sp"
         android:paddingTop="8sp"
         android:text="I am overlay"
         android:textColor="@android:color/white"
         android:textSize="14sp"/>
+
+    <ImageView
+        android:id="@+id/tts_button"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:paddingBottom="4sp"
+        android:paddingTop="4sp"
+        android:layout_toRightOf="@id/word"
+        android:src="@android:drawable/ic_lock_silent_mode_off"/>
 
     <TextView
         android:id="@+id/word_type"

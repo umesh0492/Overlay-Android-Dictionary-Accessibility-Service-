@@ -56,32 +56,3 @@ public class DictionaryWordModel {
     }
 
 }
-
-
-    /*
-
-    {
-        _id : "",
-        word : "",
-        meanings : {
-            [
-                {
-                    cat_type_id : "",
-                    meaning : "",
-                    usage : ""
-                },
-                {
-                    cat_type_id : "",
-                    meaning : "",
-                    usage : ""
-                }
-            ]
-
-        },
-        phonetic : "",
-        audio : "",
-        image : ["","",""],
-        next_id : ""
-    }
-
-     */
