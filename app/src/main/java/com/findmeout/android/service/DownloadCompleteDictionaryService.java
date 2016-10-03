@@ -35,14 +35,17 @@ public class DownloadCompleteDictionaryService extends Service {
     public int onStartCommand (Intent intent, int flags, int startId) {
 
         if (!intent.hasExtra ("close")) {
-            if (!"-1".equals (Preferences.getNextDownloadWordMeaningCategoryId ())) {
+            if (!"-1".equals (Preferences
+                    .getNextDownloadWordMeaningCategoryId (getApplicationContext ()))) {
                 requestCategories ();
             }
-            else if (!"-1".equals (Preferences.getNextDownloadWordId ())) {
+            else if (!"-1".equals (Preferences
+                    .getNextDownloadWordId (getApplicationContext ()))) {
                 showNotification (5);
                 requestWords ();
             }
-            else if (!"-1".equals (Preferences.getNextDownloadWordMeaningId ())) {
+            else if (!"-1".equals (Preferences
+                    .getNextDownloadWordMeaningId (getApplicationContext ()))) {
                 showNotification (45);
                 requestMeanings ();
             }
@@ -81,7 +84,7 @@ public class DownloadCompleteDictionaryService extends Service {
             public void onResponse (Call<DictionaryWordModel> call,
                                     Response<DictionaryWordModel> response) {
                 insertWordMeaningCategoryResultInDB (response.body ().getCategories ());
-                Preferences.setNextDownloadWordMeaningCategoryId ("-1");
+                Preferences.setNextDownloadWordMeaningCategoryId ("-1",getApplicationContext ());
                 requestWords ();
             }
 
@@ -97,7 +100,7 @@ public class DownloadCompleteDictionaryService extends Service {
 
     void requestWords () {
 
-        String nextId = Preferences.getNextDownloadWordId ();
+        String nextId = Preferences.getNextDownloadWordId (getApplicationContext ());
         int nextIntID = Integer.parseInt (nextId);
         if (nextIntID < 1000) {
             showNotification (5);
@@ -137,11 +140,11 @@ public class DownloadCompleteDictionaryService extends Service {
                     Preferences.setNextDownloadWordId (
                             (String.valueOf (response.body ().getWords ()
                                     .get (response.body ().getWords ().size ()-1)
-                                    .getId ())));
+                                    .getId ())),getApplicationContext ());
                     requestWords ();
                 }
                 else {
-                    Preferences.setNextDownloadWordId ("-1");
+                    Preferences.setNextDownloadWordId ("-1",getApplicationContext ());
                     showNotification (45);
                     requestMeanings ();
                 }
@@ -157,7 +160,7 @@ public class DownloadCompleteDictionaryService extends Service {
 
     void requestMeanings () {
 
-        String nextId = Preferences.getNextDownloadWordMeaningId ();
+        String nextId = Preferences.getNextDownloadWordMeaningId (getApplicationContext ());
         int nextIntID = Integer.parseInt (nextId);
         if (nextIntID < 10000) {
             showNotification (50);
@@ -193,12 +196,12 @@ public class DownloadCompleteDictionaryService extends Service {
                     Preferences.setNextDownloadWordMeaningId
                             (String.valueOf (response.body ().getMeanings ()
                                     .get (response.body ().getMeanings ().size ()-1)
-                                    .getId ()));
+                                    .getId ()),getApplicationContext ());
 
                     requestMeanings ();
                 }
                 else {
-                    Preferences.setNextDownloadWordMeaningId ("-1");
+                    Preferences.setNextDownloadWordMeaningId ("-1",getApplicationContext ());
                     showNotification (100);
                     stopSelf ();
                 }

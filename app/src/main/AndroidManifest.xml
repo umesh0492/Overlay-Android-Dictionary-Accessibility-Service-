@@ -12,9 +12,6 @@
 
     <uses-permission-sdk-23 android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"/>
 
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.BROADCAST_STICKY"/>
-
     <application
         android:name=".MainApplication"
         android:allowBackup="true"
@@ -50,20 +47,20 @@
         </service>
         <service android:name=".service.ChatHeadService"/>
 
-        <!-- [START firebase_service] -->
+       <!--  [START firebase_service]
         <service android:name=".gcm.MyFirebaseMessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-        <!-- [END firebase_service] -->
-        <!-- [START firebase_iid_service] -->
+         [END firebase_service]
+         [START firebase_iid_service]
         <service android:name=".gcm.MyFirebaseInstanceIDService">
             <intent-filter>
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
             </intent-filter>
         </service>
-        <!-- [END firebase_iid_service] -->
+         [END firebase_iid_service] -->
 
         <service
             android:name=".service.DownloadCompleteDictionaryService"

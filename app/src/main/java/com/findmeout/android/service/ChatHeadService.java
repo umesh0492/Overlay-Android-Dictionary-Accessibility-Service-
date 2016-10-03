@@ -42,7 +42,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ChatHeadService extends Service  implements TextToSpeech.OnInitListener{
+public class ChatHeadService extends Service implements TextToSpeech.OnInitListener {
     private static final String TAG = "ChatHeadService";
     TextView tvWord;
     TextView tvWordType;
@@ -61,12 +61,12 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
     private int mHeight;
 
     private TextToSpeech tts;
-
+    Call<DictionaryWordModel> call;
 
     @Override
     public void onCreate () {
         super.onCreate ();
-        tts = new TextToSpeech(this, this);
+        tts = new TextToSpeech (this, this);
         windowManager = (WindowManager) getSystemService (WINDOW_SERVICE);
         layoutInflater = (LayoutInflater) getSystemService (LAYOUT_INFLATER_SERVICE);
 
@@ -94,7 +94,7 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
                         | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
 
-        Log.e (TAG, params.toString ());
+        //Log.e (TAG, params.toString ());
         params.gravity = Gravity.BOTTOM | Gravity.CENTER;
         params.x = 0;
         params.y = 0;
@@ -119,8 +119,8 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
             @Override
             public void onClick (View v) {
 
-                if(!TextUtils.isEmpty (word)){
-                    speakOut();
+                if (!TextUtils.isEmpty (word)) {
+                    speakOut ();
                 }
             }
         });
@@ -133,7 +133,7 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
 
             @Override
             public boolean onTouch (View v, MotionEvent event) {
-                Log.e (TAG, event.getAction () + "");
+                //Log.e (TAG, event.getAction () + "");
                 switch (event.getAction ()) {
                     case MotionEvent.ACTION_DOWN:
                         initialX = params.x;
@@ -177,7 +177,12 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
             if (!word.equalsIgnoreCase (intent.getStringExtra ("word").trim ())) {
                 word = intent.getStringExtra ("word").trim ();
                 sentence = intent.getStringExtra ("sentence");
-                showMeaning (word);
+
+                if (null != call) {
+                    call.cancel ();
+                }
+                    showMeaning (word);
+
                 tvWordType.setVisibility (View.GONE);
             }
         }
@@ -195,21 +200,20 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
     }
 
     void showMeaning (String word) {
-        if (word.length () > 0) {
             if (tvWord != null) {
-                String firstLetter = word.substring (0, 1);
-                word = word.toLowerCase ();
-                word = word.replace (firstLetter, firstLetter.toUpperCase ());
-
                 tvWord.setText (word);
 
-                //:// TODO: 02/10/16 check for e or es and matching words 
+                // regex to check for s  and matching words
+                if (word.trim ().matches ("([a-zA-Z]+?)(s\b|\b)")) {
+                    Log.e (TAG, "matched");
+                }
 
                 // :// TODO: 27/09/16 implement joins
                 Words wordId = new Select ().from (Words.class)
                         .where (Words_Table.word.is (word))
                         .querySingle ();
                 if (null != wordId) {
+                    Log.e (TAG,"word ava");
                     Meanings meanings = new Select ().from (Meanings.class)
                             .where (Meanings_Table.wordId.is (wordId.getId ()))
                             .querySingle ();
@@ -219,7 +223,8 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
                         Categories category = new Select ().from (Categories.class)
                                 .where (Categories_Table.id.is (meanings.getCategoryId ()))
                                 .querySingle ();
-
+                        speakOut ();
+                        assert category != null;
                         if (!category.getCategoryName ().equals ("none")) {
                             tvWordType.setVisibility (View.VISIBLE);
                             tvWordType.setText (category.getCategoryName ());
@@ -238,19 +243,15 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
                     requestMeaning (word);
                 }
             }
-        }
-        else {
-            requestMeaning (word);
-        }
     }
 
     void requestMeaning (final String word) {
 
-        tvMeaning.setText ("Requesting meaning");
+        tvMeaning.setText ("Requesting meaning ...");
 
         if (!requestingServer) {
             requestingServer = true;
-            Call<DictionaryWordModel> call = MainApplication.apiService.getWordMeaning (word);
+            call = MainApplication.apiService.getWordMeaning (word);
 
             call.enqueue (new Callback<DictionaryWordModel> () {
 
@@ -278,14 +279,14 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
                     requestingServer = false;
 
                     tvMeaning.setText ("Word doesn't exist in our database");
-                    Log.e (TAG, t.toString ());
+                    //Log.e (TAG, t.toString ());
                 }
             });
         }
     }
 
     @Override
-    public void onDestroy() {
+    public void onDestroy () {
 
         if (viewOverlay != null) {
             windowManager.removeView (viewOverlay);
@@ -293,10 +294,10 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
 
         // Don't forget to shutdown tts!
         if (tts != null) {
-            tts.stop();
-            tts.shutdown();
+            tts.stop ();
+            tts.shutdown ();
         }
-        super.onDestroy();
+        super.onDestroy ();
     }
 
     /**
@@ -308,24 +309,25 @@ public class ChatHeadService extends Service  implements TextToSpeech.OnInitList
     public void onInit (int status) {
         if (status == TextToSpeech.SUCCESS) {
 
-            int result = tts.setLanguage(Locale.US);
-            tts.setSpeechRate(0.7f);
+            int result = tts.setLanguage (Locale.US);
+            tts.setSpeechRate (0.7f);
             if (result == TextToSpeech.LANG_MISSING_DATA
                     || result == TextToSpeech.LANG_NOT_SUPPORTED) {
-                Log.e("TTS", "This Language is not supported");
-            } else {
-                tts_button.setEnabled(true);
-                speakOut();
+                Log.e ("TTS", "This Language is not supported");
+            }
+            else {
+                tts_button.setEnabled (true);
             }
 
-        } else {
-            Log.e("TTS", "Initilization Failed!");
+        }
+        else {
+            Log.e ("TTS", "Initilization Failed!");
         }
     }
 
     private void speakOut () {
 
-        tts.speak(word, TextToSpeech.QUEUE_FLUSH, null);
+        tts.speak (word, TextToSpeech.QUEUE_FLUSH, null);
     }
 
 }

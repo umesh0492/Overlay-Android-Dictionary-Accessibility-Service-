@@ -121,9 +121,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private boolean isDictionaryDownloaded () {
-        if (("-1".equals (Preferences.getNextDownloadWordMeaningCategoryId ())
-                && ("-1".equals (Preferences.getNextDownloadWordId ()))
-                && ("-1".equals (Preferences.getNextDownloadWordMeaningId ())))) {
+        if (("-1".equals (Preferences
+                .getNextDownloadWordMeaningCategoryId (getApplicationContext ()))
+                && ("-1".equals (Preferences
+                .getNextDownloadWordId (getApplicationContext ())))
+                && ("-1".equals (Preferences
+                .getNextDownloadWordMeaningId (getApplicationContext ()))))) {
             dictionaryDownloaded ();
             return true;
         }

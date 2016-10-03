@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import com.findmeout.android.MainApplication;
-
 public class Preferences {
 
     private static final String PREF = "find_me_out";
@@ -20,104 +18,104 @@ public class Preferences {
     private static final String NEXT_DOWNLOAD_CATEGORY_ID = "NEXT_DOWNLOAD_CATEGORY_ID";
     private static final String NEXT_DOWNLOAD_WORD_MEANING_ID = "NEXT_DOWNLOAD_WORD_MEANING_ID";
 
-    public static String getPubKey () {
-        return getSharedPref (MainApplication.context).getString (PREF_PUB_KEY, null);
+    public static String getPubKey (Context context) {
+        return getSharedPref (context).getString (PREF_PUB_KEY, null);
     }
 
     private static SharedPreferences getSharedPref (Context ctx) {
         return ctx.getSharedPreferences (PREF, Context.MODE_PRIVATE);
     }
 
-    public static void setPubKey (String key) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setPubKey (String key, Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putString (PREF_PUB_KEY, key);
         edit.commit ();
     }
 
-    public static String getGcmId () {
-        return getSharedPref (MainApplication.context).getString (GCM_ID, "");
+    public static String getGcmId (Context context) {
+        return getSharedPref (context).getString (GCM_ID, "");
     }
 
-    public static void setGcmId (String key) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setGcmId (String key, Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putString (GCM_ID, key);
         edit.commit ();
     }
 
-    public static String getPriKey () {
+    public static String getPriKey (Context context) {
 
-        if (null != getSharedPref (MainApplication.context).getString (PREF_PRI_KEY, null)) {
-            setRegistration (true);
+        if (null != getSharedPref (context).getString (PREF_PRI_KEY, null)) {
+            setRegistration (true,context);
         }
-        return getSharedPref (MainApplication.context).getString (PREF_PRI_KEY, null);
+        return getSharedPref (context).getString (PREF_PRI_KEY, null);
     }
 
-    public static void setPriKey (String key) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setPriKey (String key, Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putString (PREF_PRI_KEY, key);
         edit.commit ();
 
-        setRegistration (true);
+        setRegistration (true,context);
     }
 
-    public static void setRegistration (boolean isRegistered) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setRegistration (boolean isRegistered, Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putBoolean (REGISTRATION_DONE, isRegistered);
         edit.commit ();
     }
 
-    public static Integer getAppVersion () {
-        return getSharedPref (MainApplication.context).getInt (APP_VERSION, Integer.MIN_VALUE);
+    public static Integer getAppVersion (Context context) {
+        return getSharedPref (context).getInt (APP_VERSION, Integer.MIN_VALUE);
     }
 
-    public static void setAppVersion (int version) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setAppVersion (int version,Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putInt (APP_VERSION, version);
         edit.commit ();
     }
 
     // 0= At Information Screen, 1 = Set User Profile, 2 = Chat Activity
-    public static int getAppState () {
-        return getSharedPref (MainApplication.context).getInt (APP_STATE, 0);
+    public static int getAppState (Context context) {
+        return getSharedPref (context).getInt (APP_STATE, 0);
     }
 
-    public static void setAppState (int state) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setAppState (int state,Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putInt (APP_STATE, state);
         edit.commit ();
     }
 
-    public static boolean isRegistered () {
-        return getSharedPref (MainApplication.context).getBoolean (REGISTRATION_DONE, false);
+    public static boolean isRegistered (Context context) {
+        return getSharedPref (context).getBoolean (REGISTRATION_DONE, false);
     }
 
 
-    public static String getNextDownloadWordId () {
-        return getSharedPref (MainApplication.context).getString (NEXT_DOWNLOAD_WORD_ID, "0");
+    public static String getNextDownloadWordId (Context context) {
+        return getSharedPref (context).getString (NEXT_DOWNLOAD_WORD_ID, "0");
     }
 
-    public static void setNextDownloadWordId (String id) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setNextDownloadWordId (String id,Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putString (NEXT_DOWNLOAD_WORD_ID, id);
         edit.commit ();
     }
 
-    public static String getNextDownloadWordMeaningId () {
-        return getSharedPref (MainApplication.context).getString (NEXT_DOWNLOAD_WORD_MEANING_ID, "0");
+    public static String getNextDownloadWordMeaningId (Context context) {
+        return getSharedPref (context).getString (NEXT_DOWNLOAD_WORD_MEANING_ID, "0");
     }
 
-    public static void setNextDownloadWordMeaningId (String id) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setNextDownloadWordMeaningId (String id,Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putString (NEXT_DOWNLOAD_WORD_MEANING_ID, id);
         edit.commit ();
     }
 
-    public static String getNextDownloadWordMeaningCategoryId () {
-        return getSharedPref (MainApplication.context).getString (NEXT_DOWNLOAD_CATEGORY_ID, "0");
+    public static String getNextDownloadWordMeaningCategoryId (Context context) {
+        return getSharedPref (context).getString (NEXT_DOWNLOAD_CATEGORY_ID, "0");
     }
 
-    public static void setNextDownloadWordMeaningCategoryId (String id) {
-        Editor edit = getSharedPref (MainApplication.context).edit ();
+    public static void setNextDownloadWordMeaningCategoryId (String id,Context context) {
+        Editor edit = getSharedPref (context).edit ();
         edit.putString (NEXT_DOWNLOAD_CATEGORY_ID, id);
         edit.commit ();
     }
@@ -126,9 +124,9 @@ public class Preferences {
     public static void onAuthFail () {
 
         //on app auth fail
-        setAppState (2);// on registration fragment
-        setPubKey (null);
-        setPriKey (null);
+        //setAppState (2);// on registration fragment
+        //setPubKey (null);
+        //setPriKey (null);
 
     }
 }

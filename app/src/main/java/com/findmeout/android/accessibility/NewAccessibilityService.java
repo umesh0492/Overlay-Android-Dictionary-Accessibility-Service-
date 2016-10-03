@@ -66,17 +66,19 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
                 if (word.trim ().matches ("([A-za-z]*)")) {
 
+                    String firstLetter = word.substring (0, 1);
+                    word = word.toLowerCase ();
+                    word = word.replaceFirst (firstLetter, firstLetter.toUpperCase ());
+
                     in.putExtra ("word", word);
                     in.putExtra ("sentence", sentence);
+                    startService (in);
 
                 }
                 else {
-                    in.putExtra ("word", "");
-                    in.putExtra ("sentence", "");
-
+stopService (in);
                 }
 
-                startService (in);
 
             }
 
@@ -119,15 +121,15 @@ public class NewAccessibilityService extends android.accessibilityservice.Access
 
         accessibilityServiceInfo.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
 
-        accessibilityServiceInfo.flags |= AccessibilityServiceInfo.DEFAULT;
+        //accessibilityServiceInfo.flags |= AccessibilityServiceInfo.DEFAULT;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS;
         accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS;
         // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_ENHANCED_WEB_ACCESSIBILITY;
         // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
-        accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
-        accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
+        //accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_TOUCH_EXPLORATION_MODE;
+       // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS;
 
-        accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FEEDBACK_ALL_MASK;
+       // accessibilityServiceInfo.flags |= AccessibilityServiceInfo.FEEDBACK_ALL_MASK;
 
 
         //accessibilityServiceInfo.packageNames = packages;
